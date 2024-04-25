@@ -2,6 +2,8 @@
 
 Proxy that allows you to use ollama as a copilot like Github copilot
 
+[Video presentation](presentation.gif)
+
 ## Installation
 
 1. Install binaries
