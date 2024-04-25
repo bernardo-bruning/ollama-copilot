@@ -4,10 +4,11 @@ import (
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
-	"ollama-copilot/internal/handlers"
 	"reflect"
 	"testing"
 	"time"
+
+	"github.com/bernardo-bruning/ollama-copilot/internal/handlers"
 )
 
 func TestTokenHandler_ServeHTTP(t *testing.T) {

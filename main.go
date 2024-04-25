@@ -2,11 +2,11 @@ package main
 
 import (
 	"flag"
+	"github.com/bernardo-bruning/ollama-copilot/internal"
+	"github.com/bernardo-bruning/ollama-copilot/internal/handlers"
+	"github.com/bernardo-bruning/ollama-copilot/internal/middleware"
 	"log"
 	"net/http"
-	"ollama-copilot/internal"
-	"ollama-copilot/internal/handlers"
-	"ollama-copilot/internal/middleware"
 	"text/template"
 
 	"github.com/ollama/ollama/api"
