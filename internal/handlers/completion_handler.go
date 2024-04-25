@@ -1,10 +1,12 @@
 package handlers
 
 import (
+	"bytes"
 	"encoding/json"
 	"log"
 	"net/http"
 	"sync"
+	"text/template"
 	"time"
 
 	"github.com/google/uuid"
@@ -53,14 +55,32 @@ type CompletionResponse struct {
 	Choices []ChoiceResponse `json:"choices"`
 }
 
+// Prompt is an repreentation of a prompt with suffi and prefix
+type Prompt struct {
+	Prefix string
+	Suffix string
+}
+
+func (p Prompt) Generate(templ *template.Template) string {
+	var buf = new(bytes.Buffer)
+	err := templ.Execute(buf, p)
+	if err != nil {
+		log.Printf("error executing prompt template: %s", err.Error())
+	}
+
+	return buf.String()
+}
+
 // CompletionHandler is an http.Handler that returns completions.
 type CompletionHandler struct {
-	api *api.Client
+	api   *api.Client
+	model string
+	templ *template.Template
 }
 
 // NewCompletionHandler returns a new CompletionHandler.
-func NewCompletionHandler(api *api.Client) *CompletionHandler {
-	return &CompletionHandler{api}
+func NewCompletionHandler(api *api.Client, model string, template *template.Template) *CompletionHandler {
+	return &CompletionHandler{api, model, template}
 }
 
 // ServeHTTP implements http.Handler.
@@ -82,7 +102,7 @@ func (c *CompletionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	generate := api.GenerateRequest{
 		Model:  "codellama:code",
-		Prompt: req.Prompt,
+		Prompt: Prompt{Prefix: req.Prompt, Suffix: req.Suffix}.Generate(c.templ),
 		Options: map[string]interface{}{
 			"temperature": req.Temperature,
 			"top_p":       req.TopP,
