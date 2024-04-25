@@ -21,7 +21,7 @@ ollama-copilot
 1. Install copilot.vim
 2. Configure variables
 ```
-let g:copilot_proxy = 'http://localhost:8080'
+let g:copilot_proxy = 'http://localhost:11435'
 let g:copilot_proxy_strict_ssl = v:false
 ```
 

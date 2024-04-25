@@ -13,8 +13,8 @@ import (
 )
 
 var (
-	port        = flag.String("port", ":9090", "Port to listen on")
-	proxyPort   = flag.String("proxy-port", ":8080", "Proxy port to listen on")
+	port        = flag.String("port", ":11436", "Port to listen on")
+	proxyPort   = flag.String("proxy-port", ":11435", "Proxy port to listen on")
 	cert        = flag.String("cert", "server.crt", "Certificate file path *.crt")
 	key         = flag.String("key", "server.key", "Key file path *.key")
 	model       = flag.String("model", "codellama:code", "LLM model to use")
