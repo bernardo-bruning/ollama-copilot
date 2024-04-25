@@ -43,6 +43,6 @@ let g:copilot_proxy_strict_ssl = v:false
 ## Roadmap
 
 - [x] Enable completions APIs usage; fill in the middle.
-- [ ] Enable flexible configuration model (Currently only supported llamacode:code).
+- [x] Enable flexible configuration model (Currently only supported llamacode:code).
 - [ ] Create self-installing functionality.
 - [ ] Documentation on how to use.
