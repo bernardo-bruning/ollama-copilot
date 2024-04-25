@@ -43,7 +43,7 @@ func main() {
 	mux.Handle("/copilot_internal/v2/token", handlers.NewTokenHandler())
 	mux.Handle("/v1/engines/copilot-codex/completions", handlers.NewCompletionHandler(api, *model, templ))
 
-	go internal.Proxy(*proxyPort)
+	go internal.Proxy(*proxyPort, *port)
 
 	http.ListenAndServeTLS(*port, *cert, *key, middleware.LogMiddleware(mux))
 }

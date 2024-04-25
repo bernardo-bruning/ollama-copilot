@@ -9,7 +9,7 @@ import (
 	"time"
 )
 
-func Proxy(port string) {
+func Proxy(port string, forward string) {
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -23,11 +23,11 @@ func Proxy(port string) {
 			log.Fatalf("failed to accept: %v", err)
 		}
 
-		go handle(conn)
+		go handle(conn, forward)
 	}
 }
 
-func handle(conn net.Conn) {
+func handle(conn net.Conn, forward string) {
 	req, err := http.ReadRequest(bufio.NewReader(conn))
 	if err != nil {
 		conn.Close()
@@ -41,7 +41,7 @@ func handle(conn net.Conn) {
 		return
 	}
 
-	client, err := net.DialTimeout("tcp", "localhost:9090", 10*time.Second)
+	client, err := net.DialTimeout("tcp", "localhost:"+forward, 10*time.Second)
 	// client, err := net.DialTimeout("tcp", req.Host, 10*time.Second)
 	if err != nil {
 		conn.Close()
