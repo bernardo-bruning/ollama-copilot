@@ -18,7 +18,7 @@ var (
 	cert        = flag.String("cert", "server.crt", "Certificate file path *.crt")
 	key         = flag.String("key", "server.key", "Key file path *.key")
 	model       = flag.String("model", "codellama:code", "LLM model to use")
-	templateStr = flag.String("template", "<PRE> {{.Prefix}} <SUF>{{.Suffix}} <MID>", "Fill-in-middle template to apply in prompt")
+	templateStr = flag.String("template", "<PRE> {{.Prefix}} <SUF> {{.Suffix}} <MID>", "Fill-in-middle template to apply in prompt")
 )
 
 // main is the entrypoint for the program.
