@@ -41,7 +41,7 @@ func handle(conn net.Conn, forward string) {
 		return
 	}
 
-	client, err := net.DialTimeout("tcp", "localhost:"+forward, 10*time.Second)
+	client, err := net.DialTimeout("tcp", "localhost"+forward, 10*time.Second)
 	// client, err := net.DialTimeout("tcp", req.Host, 10*time.Second)
 	if err != nil {
 		conn.Close()
