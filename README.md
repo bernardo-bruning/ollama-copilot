@@ -6,27 +6,12 @@ Proxy that allows you to use ollama as a copilot like Github copilot
 
 1. Install binaries
 ```bash
-go install github.com/bernardo-bruning/ollama-copilot
+curl https://raw.githubusercontent.com/bernardo-bruning/ollama-copilot/master/scripts/install.sh | sh
 ```
 
-2. Install ollama
+2. Running
 ```bash
-curl -fsSL https://ollama.com/install.sh | sh
-```
-
-3. Pull models
-```bash
-ollama pull codellama:code
-````
-
-4. Create certificates for copilot
-```bash
-openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650
-```
-
-5. Run ollama copilot
-```
-~/go/bin/ollama-copilot
+ollama-copilot
 ```
 
 ## Configure IDE
