@@ -13,3 +13,6 @@ ollama pull codellama:code
 # Create certificates for copilot
 openssl ecparam -genkey -name secp384r1 -out server.key
 openssl req -new -x509 -sha256 -key server.key -out server.crt -days 3650 -subj '/CN=ollama-copilot/O=Ollama copilot./C=US'
+
+# Install user folder
+sudo mv $HOME/go/bin/ollama-copilot /usr/local/bin/ollama-copilot
