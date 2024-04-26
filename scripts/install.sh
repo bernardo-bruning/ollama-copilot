@@ -2,7 +2,7 @@
 # Install ollama-copilot and its dependencies
 
 # Install binaries
-go install github.com/bernardo-bruning/ollama-copilot
+go install github.com/bernardo-bruning/ollama-copilot@latest
 
 # Install ollama
 curl -fsSL https://ollama.com/install.sh | sh
