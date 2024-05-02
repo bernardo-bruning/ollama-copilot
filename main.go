@@ -45,5 +45,8 @@ func main() {
 
 	go internal.Proxy(*proxyPort, *port)
 
-	http.ListenAndServeTLS(*port, *cert, *key, middleware.LogMiddleware(mux))
+	err = http.ListenAndServeTLS(*port, *cert, *key, middleware.LogMiddleware(mux))
+	if err != nil {
+		log.Fatalf("error listening: %s", err.Error())
+	}
 }
