@@ -18,6 +18,7 @@ var (
 	cert        = flag.String("cert", "server.crt", "Certificate file path *.crt")
 	key         = flag.String("key", "server.key", "Key file path *.key")
 	model       = flag.String("model", "codellama:code", "LLM model to use")
+	numPredict  = flag.Int("num-predict", 50, "Number of predictions to return")
 	templateStr = flag.String("template", "<PRE> {{.Prefix}} <SUF> {{.Suffix}} <MID>", "Fill-in-middle template to apply in prompt")
 )
 
@@ -41,7 +42,7 @@ func main() {
 
 	mux.Handle("/health", handlers.NewHealthHandler())
 	mux.Handle("/copilot_internal/v2/token", handlers.NewTokenHandler())
-	mux.Handle("/v1/engines/copilot-codex/completions", handlers.NewCompletionHandler(api, *model, templ))
+	mux.Handle("/v1/engines/copilot-codex/completions", handlers.NewCompletionHandler(api, *model, templ, *numPredict))
 
 	go internal.Proxy(*proxyPort, *port)
 

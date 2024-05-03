@@ -73,14 +73,15 @@ func (p Prompt) Generate(templ *template.Template) string {
 
 // CompletionHandler is an http.Handler that returns completions.
 type CompletionHandler struct {
-	api   *api.Client
-	model string
-	templ *template.Template
+	api        *api.Client
+	model      string
+	templ      *template.Template
+	numPredict int
 }
 
 // NewCompletionHandler returns a new CompletionHandler.
-func NewCompletionHandler(api *api.Client, model string, template *template.Template) *CompletionHandler {
-	return &CompletionHandler{api, model, template}
+func NewCompletionHandler(api *api.Client, model string, template *template.Template, numPredict int) *CompletionHandler {
+	return &CompletionHandler{api, model, template, numPredict}
 }
 
 // ServeHTTP implements http.Handler.
@@ -107,6 +108,7 @@ func (c *CompletionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			"temperature": req.Temperature,
 			"top_p":       req.TopP,
 			"stop":        req.Stop,
+			"num_predict": c.numPredict,
 		},
 	}
 

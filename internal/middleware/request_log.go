@@ -11,7 +11,7 @@ type ResponseWriterLogged struct {
 	Status int
 }
 
-func (w ResponseWriterLogged) WriteHeader(status int) {
+func (w *ResponseWriterLogged) WriteHeader(status int) {
 	w.Status = status
 	w.ResponseWriter.WriteHeader(status)
 }
@@ -21,7 +21,7 @@ func LogMiddleware(next http.Handler) http.Handler {
 		start := time.Now()
 		record := ResponseWriterLogged{w, http.StatusOK}
 		log.Printf("request: %s %s", r.Method, r.URL.Path)
-		next.ServeHTTP(record, r)
+		next.ServeHTTP(&record, r)
 		log.Printf("response: %s %s %d %s", r.Method, r.URL.Path, record.Status, time.Since(start))
 	})
 }
