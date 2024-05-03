@@ -1,6 +1,7 @@
 package handlers
 
 import (
+	"log"
 	"net/http"
 )
 
@@ -17,5 +18,8 @@ func (h *HealthHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusOK)
-	w.Write([]byte("Ollama copilot is running"))
+	_, err := w.Write([]byte("Ollama copilot is running"))
+	if err != nil {
+		log.Printf("error writing response: %s", err.Error())
+	}
 }

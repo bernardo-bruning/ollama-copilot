@@ -2,6 +2,7 @@ package handlers
 
 import (
 	"encoding/json"
+	"log"
 	"net/http"
 	"time"
 )
@@ -67,5 +68,8 @@ func (t *TokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	w.Header().Set("content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
-	json.NewEncoder(w).Encode(token)
+	err := json.NewEncoder(w).Encode(token)
+	if err != nil {
+		log.Printf("error encoding: %s", err.Error())
+	}
 }

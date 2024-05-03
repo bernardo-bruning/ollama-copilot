@@ -128,11 +128,22 @@ func (c *CompletionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 			},
 		}
 
-		w.Write([]byte("data: "))
-		json.NewEncoder(w).Encode(response)
+		_, err := w.Write([]byte("data: "))
+		if err != nil {
+			log.Printf("failed to write response: %s", err.Error())
+		}
+
+		err = json.NewEncoder(w).Encode(response)
+		if err != nil {
+			log.Printf("failed to write response: %s", err.Error())
+			return nil
+		}
 
 		if resp.Done {
-			w.Write([]byte("data: [DONE]"))
+			_, err := w.Write([]byte("data: [DONE]"))
+			if err != nil {
+				log.Printf("failed to write response: %s", err.Error())
+			}
 			wg.Done()
 		}
 		return nil

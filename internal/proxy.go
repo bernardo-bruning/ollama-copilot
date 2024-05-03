@@ -46,11 +46,19 @@ func handle(conn net.Conn, forward string) {
 	if err != nil {
 		conn.Close()
 		log.Printf("failed to dial: %v", err)
-		conn.Write([]byte("HTTP/1.1 500 Internal Server Error\r\n\r\n"))
+		_, err = conn.Write([]byte("HTTP/1.1 500 Internal Server Error\r\n\r\n"))
+		if err != nil {
+			log.Printf("failed to write response: %v", err)
+		}
 		return
 	}
 
-	conn.Write([]byte("HTTP/1.1 200 Connection established\r\n\r\n"))
+	_, err = conn.Write([]byte("HTTP/1.1 200 Connection established\r\n\r\n"))
+	if err != nil {
+		conn.Close()
+		log.Printf("failed to write response: %v", err)
+		return
+	}
 
 	go transfer(client, conn)
 	go transfer(conn, client)
@@ -59,5 +67,8 @@ func handle(conn net.Conn, forward string) {
 func transfer(w io.WriteCloser, r io.ReadCloser) {
 	defer w.Close()
 	defer r.Close()
-	io.Copy(w, r)
+	_, err := io.Copy(w, r)
+	if err != nil {
+		log.Printf("failed to transfer: %v", err)
+	}
 }
