@@ -13,7 +13,8 @@ import (
 )
 
 var (
-	port        = flag.String("port", ":11436", "Port to listen on")
+	port        = flag.String("port", ":11437", "Port to listen on")
+	portSSL     = flag.String("port-ssl", ":11436", "Port to listen on")
 	proxyPort   = flag.String("proxy-port", ":11435", "Proxy port to listen on")
 	cert        = flag.String("cert", "server.crt", "Certificate file path *.crt")
 	key         = flag.String("key", "server.key", "Key file path *.key")
@@ -46,7 +47,14 @@ func main() {
 
 	go internal.Proxy(*proxyPort, *port)
 
-	err = http.ListenAndServeTLS(*port, *cert, *key, middleware.LogMiddleware(mux))
+	go func() {
+		err = http.ListenAndServeTLS(*portSSL, *cert, *key, middleware.LogMiddleware(mux))
+		if err != nil {
+			log.Fatalf("error listening: %s", err.Error())
+		}
+	}()
+
+	err = http.ListenAndServe(*port, middleware.LogMiddleware(mux))
 	if err != nil {
 		log.Fatalf("error listening: %s", err.Error())
 	}
