@@ -43,4 +43,5 @@ let g:copilot_proxy_strict_ssl = v:false
 - [x] Enable completions APIs usage; fill in the middle.
 - [x] Enable flexible configuration model (Currently only supported llamacode:code).
 - [x] Create self-installing functionality.
+- [ ] Windows setup
 - [ ] Documentation on how to use.
