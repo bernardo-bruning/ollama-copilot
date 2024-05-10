@@ -21,8 +21,7 @@ ollama-copilot
 ### Neovim
 
 1. Install [copilot.vim](https://github.com/github/copilot.vim)
-2. Sign-in or sign-up in github
-3. Configure variables
+2. Configure variables
 ```
 let g:copilot_proxy = 'http://localhost:11435'
 let g:copilot_proxy_strict_ssl = v:false
@@ -30,7 +29,8 @@ let g:copilot_proxy_strict_ssl = v:false
 
 ### VScode
 1. Install [copilot extension](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)
-2. Configure open [settings](https://code.visualstudio.com/docs/getstarted/settings) config and insert
+2. Sign-in or sign-up in github
+3. Configure open [settings](https://code.visualstudio.com/docs/getstarted/settings) config and insert
 ```
 {
     "github.copilot.advanced": {
