@@ -21,7 +21,8 @@ ollama-copilot
 ### Neovim
 
 1. Install [copilot.vim](https://github.com/github/copilot.vim)
-2. Configure variables
+2. Sign in or signup in github
+3. Configure variables
 ```
 let g:copilot_proxy = 'http://localhost:11435'
 let g:copilot_proxy_strict_ssl = v:false
