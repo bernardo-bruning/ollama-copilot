@@ -1,13 +1,20 @@
 package main
 
 import (
+	"crypto/rand"
+	"crypto/rsa"
+	"crypto/tls"
+	"crypto/x509"
+	"crypto/x509/pkix"
 	"flag"
-	"github.com/bernardo-bruning/ollama-copilot/internal"
-	"github.com/bernardo-bruning/ollama-copilot/internal/handlers"
-	"github.com/bernardo-bruning/ollama-copilot/internal/middleware"
 	"log"
+	"math/big"
 	"net/http"
 	"text/template"
+	"time"
+
+	"github.com/bernardo-bruning/ollama-copilot/internal"
+	"github.com/bernardo-bruning/ollama-copilot/internal/handlers"
 
 	"github.com/ollama/ollama/api"
 )
@@ -16,8 +23,8 @@ var (
 	port        = flag.String("port", ":11437", "Port to listen on")
 	portSSL     = flag.String("port-ssl", ":11436", "Port to listen on")
 	proxyPort   = flag.String("proxy-port", ":11435", "Proxy port to listen on")
-	cert        = flag.String("cert", "/etc/ollama-copilot/server.crt", "Certificate file path *.crt")
-	key         = flag.String("key", "/etc/ollama-copilot/server.key", "Key file path *.key")
+	cert        = flag.String("cert", "", "Certificate file path *.crt")
+	key         = flag.String("key", "", "Key file path *.key")
 	model       = flag.String("model", "codellama:code", "LLM model to use")
 	numPredict  = flag.Int("num-predict", 50, "Number of predictions to return")
 	templateStr = flag.String("template", "<PRE> {{.Prefix}} <SUF> {{.Suffix}} <MID>", "Fill-in-middle template to apply in prompt")
@@ -45,17 +52,66 @@ func main() {
 	mux.Handle("/copilot_internal/v2/token", handlers.NewTokenHandler())
 	mux.Handle("/v1/engines/copilot-codex/completions", handlers.NewCompletionHandler(api, *model, templ, *numPredict))
 
-	go internal.Proxy(*proxyPort, *port)
+	go internal.Proxy(*proxyPort, *portSSL)
 
-	go func() {
-		err = http.ListenAndServeTLS(*portSSL, *cert, *key, middleware.LogMiddleware(mux))
-		if err != nil {
-			log.Fatalf("error listening: %s", err.Error())
-		}
-	}()
+	go listenAndServeTLS(*portSSL, *cert, *key, mux)
 
-	err = http.ListenAndServe(*port, middleware.LogMiddleware(mux))
+	listenAndServe(*port, mux)
+}
+
+func listenAndServe(port string, mux *http.ServeMux) {
+	err := http.ListenAndServe(port, mux)
 	if err != nil {
 		log.Fatalf("error listening: %s", err.Error())
 	}
+}
+
+func listenAndServeTLS(portSSL string, cert string, key string, mux *http.ServeMux) {
+	server := http.Server{
+		Addr:      portSSL,
+		Handler:   mux,
+		TLSConfig: &tls.Config{Certificates: []tls.Certificate{}, MinVersion: tls.VersionTLS13, MaxVersion: tls.VersionTLS13},
+	}
+
+	if cert == "" || key == "" {
+		selfAssignCertificate, err := selfAssignCertificate()
+		if err != nil {
+			log.Fatalf("error self assigning certificate: %s", err.Error())
+		}
+
+		server.TLSConfig.Certificates = append(server.TLSConfig.Certificates, selfAssignCertificate)
+	}
+
+	err := server.ListenAndServeTLS(cert, key)
+	if err != nil {
+		log.Fatalf("error listening: %s", err.Error())
+	}
+}
+
+func selfAssignCertificate() (tls.Certificate, error) {
+	private, err := rsa.GenerateKey(rand.Reader, 2048)
+	if err != nil {
+		return tls.Certificate{}, err
+	}
+
+	template := &x509.Certificate{
+		SerialNumber: big.NewInt(1),
+		Subject: pkix.Name{
+			CommonName: "localhost",
+		},
+		NotBefore: time.Now(),
+		NotAfter:  time.Now().AddDate(30, 0, 0),
+		KeyUsage:  x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+		ExtKeyUsage: []x509.ExtKeyUsage{
+			x509.ExtKeyUsageServerAuth,
+		},
+		BasicConstraintsValid: true,
+	}
+
+	cert, err := x509.CreateCertificate(rand.Reader, template, template, private.Public(), private)
+
+	return tls.Certificate{
+		Certificate: [][]byte{cert},
+		PrivateKey:  private,
+	}, err
 }
