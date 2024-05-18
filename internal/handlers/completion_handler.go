@@ -102,7 +102,7 @@ func (c *CompletionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.WriteHeader(http.StatusOK)
 
 	generate := api.GenerateRequest{
-		Model:  "codellama:code",
+		Model:  c.model,
 		Prompt: Prompt{Prefix: req.Prompt, Suffix: req.Suffix}.Generate(c.templ),
 		Options: map[string]interface{}{
 			"temperature": req.Temperature,
