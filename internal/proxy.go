@@ -2,6 +2,7 @@ package internal
 
 import (
 	"bufio"
+	"errors"
 	"io"
 	"log"
 	"net"
@@ -42,7 +43,6 @@ func handle(conn net.Conn, forward string) {
 	}
 
 	client, err := net.DialTimeout("tcp", "localhost"+forward, 10*time.Second)
-	// client, err := net.DialTimeout("tcp", req.Host, 10*time.Second)
 	if err != nil {
 		conn.Close()
 		log.Printf("failed to dial: %v", err)
@@ -68,6 +68,14 @@ func transfer(w io.WriteCloser, r io.ReadCloser) {
 	defer w.Close()
 	defer r.Close()
 	_, err := io.Copy(w, r)
+	if errors.Is(err, net.ErrClosed) {
+		return
+	}
+
+	if err == net.ErrClosed {
+		return
+	}
+
 	if err != nil {
 		log.Printf("failed to transfer: %v", err)
 	}
