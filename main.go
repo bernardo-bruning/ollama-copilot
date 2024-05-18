@@ -15,6 +15,7 @@ import (
 
 	"github.com/bernardo-bruning/ollama-copilot/internal"
 	"github.com/bernardo-bruning/ollama-copilot/internal/handlers"
+	"github.com/bernardo-bruning/ollama-copilot/internal/middleware"
 
 	"github.com/ollama/ollama/api"
 )
@@ -52,21 +53,22 @@ func main() {
 	mux.Handle("/copilot_internal/v2/token", handlers.NewTokenHandler())
 	mux.Handle("/v1/engines/copilot-codex/completions", handlers.NewCompletionHandler(api, *model, templ, *numPredict))
 
+	handler := middleware.LogMiddleware(mux)
 	go internal.Proxy(*proxyPort, *portSSL)
 
-	go listenAndServeTLS(*portSSL, *cert, *key, mux)
+	go listenAndServeTLS(*portSSL, *cert, *key, handler)
 
-	listenAndServe(*port, mux)
+	listenAndServe(*port, handler)
 }
 
-func listenAndServe(port string, mux *http.ServeMux) {
+func listenAndServe(port string, mux http.Handler) {
 	err := http.ListenAndServe(port, mux)
 	if err != nil {
 		log.Fatalf("error listening: %s", err.Error())
 	}
 }
 
-func listenAndServeTLS(portSSL string, cert string, key string, mux *http.ServeMux) {
+func listenAndServeTLS(portSSL string, cert string, key string, mux http.Handler) {
 	server := http.Server{
 		Addr:      portSSL,
 		Handler:   mux,

@@ -45,7 +45,18 @@ func (t *TokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	token := TokenResponse{
+	token := Token()
+
+	w.Header().Set("content-Type", "application/json")
+	w.WriteHeader(http.StatusOK)
+	err := json.NewEncoder(w).Encode(token)
+	if err != nil {
+		log.Printf("error encoding: %s", err.Error())
+	}
+}
+
+func Token() TokenResponse {
+	return TokenResponse{
 		AnnotationEnabled:                  false,
 		ChatEnabled:                        false,
 		CodeQuoteEnabled:                   true,
@@ -64,12 +75,5 @@ func (t *TokenHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		Token:                              "token",
 		TrackingId:                         "tracking_id",
 		VscElectronFetcher:                 true,
-	}
-
-	w.Header().Set("content-Type", "application/json")
-	w.WriteHeader(http.StatusOK)
-	err := json.NewEncoder(w).Encode(token)
-	if err != nil {
-		log.Printf("error encoding: %s", err.Error())
 	}
 }

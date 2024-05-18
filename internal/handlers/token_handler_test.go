@@ -28,26 +28,7 @@ func TestTokenHandler_ServeHTTP(t *testing.T) {
 		t.Fatalf("failed to decode response: %v", err)
 	}
 
-	expected := handlers.TokenResponse{
-		AnnotationEnabled:                  false,
-		ChatEnabled:                        false,
-		CodeQuoteEnabled:                   true,
-		CopilotIdeAgentChatGpt4SmallPrompt: false,
-		CopilotIgnoreEnabled:               false,
-		ExpiresAt:                          time.Now().Unix() + 3600,
-		IndividualChatEnabled:              true,
-		NesEnabled:                         true,
-		OrganizationList:                   []string{"org1", "org2"},
-		Prompt8k:                           true,
-		PublicSuggestions:                  "public_suggestions",
-		RefreshIn:                          time.Now().Unix() + 1800,
-		Sku:                                "sku",
-		SnippyLoadTestEnabled:              true,
-		Telemetry:                          "telemetry",
-		Token:                              "token",
-		TrackingId:                         "tracking_id",
-		VscElectronFetcher:                 true,
-	}
+	expected := handlers.Token()
 
 	if !reflect.DeepEqual(token, expected) {
 		t.Errorf("expected response to be %v, got %v", expected, token)
