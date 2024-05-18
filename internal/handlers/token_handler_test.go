@@ -6,7 +6,6 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
-	"time"
 
 	"github.com/bernardo-bruning/ollama-copilot/internal/handlers"
 )
