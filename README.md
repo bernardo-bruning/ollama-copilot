@@ -6,13 +6,38 @@ Proxy that allows you to use ollama as a copilot like Github copilot
 
 ## Installation
 
-### Install binaries
+### Ollama
+
+Ensure [ollama](https://ollama.com/download/linux) is installed:
 
 ```bash
-curl https://raw.githubusercontent.com/bernardo-bruning/ollama-copilot/master/scripts/install.sh | sh
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+Or follow the [manual install](https://github.com/ollama/ollama/blob/main/docs/linux.md#manual-install).
+
+#### Models
+
+To use the default model expected by `ollama-copilot`:
+
+```bash
+ollama pull codellama:code
+```
+
+### ollama-copilot
+
+```bash
+go install github.com/bernardo-bruning/ollama-copilot@latest
 ```
 
 ### Running
+
+Ensure your `$PATH` includes `$HOME/go/bin` or `$GOPATH/bin`.
+For example, in `~/.bashrc` or `~/.zshrc`:
+
+```bash
+export PATH="$HOME/go/bin:$GOPATH/bin:$PATH"
+```
 
 ```bash
 ollama-copilot
