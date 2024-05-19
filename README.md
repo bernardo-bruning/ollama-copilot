@@ -7,11 +7,13 @@ Proxy that allows you to use ollama as a copilot like Github copilot
 ## Installation
 
 1. Install binaries
+
 ```bash
 curl https://raw.githubusercontent.com/bernardo-bruning/ollama-copilot/master/scripts/install.sh | sh
 ```
 
 2. Running
+
 ```bash
 ollama-copilot
 ```
@@ -22,16 +24,19 @@ ollama-copilot
 
 1. Install [copilot.vim](https://github.com/github/copilot.vim)
 2. Configure variables
-```
+
+```vim
 let g:copilot_proxy = 'http://localhost:11435'
 let g:copilot_proxy_strict_ssl = v:false
 ```
 
 ### VScode
+
 1. Install [copilot extension](https://marketplace.visualstudio.com/items?itemName=GitHub.copilot)
 2. Sign-in or sign-up in github
 3. Configure open [settings](https://code.visualstudio.com/docs/getstarted/settings) config and insert
-```
+
+```json
 {
     "github.copilot.advanced": {
         "debug.overrideProxyUrl": "http://localhost:11437",
