@@ -115,8 +115,6 @@ func (c *CompletionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	var wg sync.WaitGroup
 	wg.Add(1)
 	err := c.api.Generate(r.Context(), &generate, func(resp api.GenerateResponse) error {
-		w.Header().Set("Content-Type", "application/json")
-		w.WriteHeader(http.StatusOK)
 		response := CompletionResponse{
 			Id:      uuid.New().String(),
 			Created: time.Now().Unix(),
