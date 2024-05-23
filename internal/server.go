@@ -28,6 +28,7 @@ type Server struct {
 	NumPredict  int
 }
 
+// Serve starts the server.
 func (s *Server) Serve() {
 	err := http.ListenAndServe(s.Port, s.mux())
 	if err != nil {
@@ -35,6 +36,7 @@ func (s *Server) Serve() {
 	}
 }
 
+// ServeTLS starts the server with TLS.
 func (s *Server) ServeTLS() {
 	server := http.Server{
 		Addr:      s.PortSSL,
@@ -57,6 +59,7 @@ func (s *Server) ServeTLS() {
 	}
 }
 
+// selfAssignCertificate generates a self-signed certificate for localhost.
 func selfAssignCertificate() (tls.Certificate, error) {
 	private, err := rsa.GenerateKey(rand.Reader, 2048)
 	if err != nil {
@@ -85,6 +88,7 @@ func selfAssignCertificate() (tls.Certificate, error) {
 	}, err
 }
 
+// mux returns the main mux for the server.
 func (s *Server) mux() http.Handler {
 	api, err := api.ClientFromEnvironment()
 
