@@ -67,6 +67,7 @@ let g:copilot_proxy_strict_ssl = v:false
         "debug.overrideProxyUrl": "http://localhost:11437"
     },
     "http.proxy": "http://localhost:11435",
+    "http.proxyStrictSSL": false
 }
 ```
 
