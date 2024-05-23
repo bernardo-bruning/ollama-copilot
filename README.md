@@ -64,8 +64,9 @@ let g:copilot_proxy_strict_ssl = v:false
 ```json
 {
     "github.copilot.advanced": {
-        "debug.overrideProxyUrl": "http://localhost:11437",
+        "debug.overrideProxyUrl": "http://localhost:11437"
     },
+    "http.proxy": "http://localhost:11435",
 }
 ```
 
