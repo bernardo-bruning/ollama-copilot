@@ -3,10 +3,12 @@ package internal
 import (
 	"bufio"
 	"errors"
+	"fmt"
 	"io"
 	"log"
 	"net"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -36,13 +38,19 @@ func handle(conn net.Conn, forward string) {
 		return
 	}
 
+	address := "localhost" + forward
+
+	if !strings.Contains(req.URL.Hostname(), "api.githubcopilot.com") && !strings.Contains(req.URL.Hostname(), "api.github.com") && !strings.Contains(req.URL.Hostname(), "copilot-proxy.githubusercontent.com") {
+		address = fmt.Sprintf("%s:%s", req.URL.Hostname(), req.URL.Port())
+	}
+
 	if req.Method != http.MethodConnect {
 		conn.Close()
 		log.Printf("unsupported method: %s", req.Method)
 		return
 	}
 
-	client, err := net.DialTimeout("tcp", "localhost"+forward, 10*time.Second)
+	client, err := net.DialTimeout("tcp", address, 10*time.Second)
 	if err != nil {
 		conn.Close()
 		log.Printf("failed to dial: %v", err)

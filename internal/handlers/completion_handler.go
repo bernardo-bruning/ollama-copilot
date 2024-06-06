@@ -138,10 +138,6 @@ func (c *CompletionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		}
 
 		if resp.Done {
-			_, err := w.Write([]byte("data: [DONE]"))
-			if err != nil {
-				log.Printf("failed to write response: %s", err.Error())
-			}
 			wg.Done()
 		}
 		return nil
