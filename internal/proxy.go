@@ -30,6 +30,13 @@ func Proxy(port string, forward string) {
 	}
 }
 
+var hosts = []string{
+	"api.githubcopilot.com",
+	"api.github.com",
+	"copilot-proxy.githubusercontent.com",
+	"proxy.individual.githubcopilot.com",
+}
+
 func handle(conn net.Conn, forward string) {
 	req, err := http.ReadRequest(bufio.NewReader(conn))
 	if err != nil {
@@ -40,7 +47,15 @@ func handle(conn net.Conn, forward string) {
 
 	address := "localhost" + forward
 
-	if !strings.Contains(req.URL.Hostname(), "api.githubcopilot.com") && !strings.Contains(req.URL.Hostname(), "api.github.com") && !strings.Contains(req.URL.Hostname(), "copilot-proxy.githubusercontent.com") {
+	var knownHost bool
+	for _, host := range hosts {
+		if strings.Contains(req.URL.Hostname(), host) {
+			knownHost = true
+			break
+		}
+	}
+
+	if !knownHost {
 		address = fmt.Sprintf("%s:%s", req.URL.Hostname(), req.URL.Port())
 	}
 
