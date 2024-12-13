@@ -45,18 +45,14 @@ func handle(conn net.Conn, forward string) {
 		return
 	}
 
-	address := "localhost" + forward
+	address := fmt.Sprintf("%s:%s", req.URL.Hostname(), req.URL.Port())
 
-	var knownHost bool
 	for _, host := range hosts {
 		if strings.Contains(req.URL.Hostname(), host) {
-			knownHost = true
+			// This is a host we know and want to forward back to ourselves
+			address = "localhost" + forward
 			break
 		}
-	}
-
-	if !knownHost {
-		address = fmt.Sprintf("%s:%s", req.URL.Hostname(), req.URL.Port())
 	}
 
 	if req.Method != http.MethodConnect {
