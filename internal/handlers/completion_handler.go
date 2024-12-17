@@ -112,7 +112,7 @@ func (c *CompletionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	ctx, cancel := context.WithTimeout(r.Context(), time.Second*10)
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*60)
 	r = r.WithContext(ctx)
 	defer cancel()
 	doneChan := make(chan struct{})
