@@ -2,10 +2,10 @@ package handlers
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"log"
 	"net/http"
-	"sync"
 	"text/template"
 	"time"
 
@@ -112,8 +112,10 @@ func (c *CompletionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 		},
 	}
 
-	var wg sync.WaitGroup
-	wg.Add(1)
+	ctx, cancel := context.WithTimeout(r.Context(), time.Second*60)
+	r = r.WithContext(ctx)
+	defer cancel()
+	doneChan := make(chan struct{})
 	err := c.api.Generate(r.Context(), &generate, func(resp api.GenerateResponse) error {
 		response := CompletionResponse{
 			Id:      uuid.New().String(),
@@ -128,22 +130,29 @@ func (c *CompletionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 		_, err := w.Write([]byte("data: "))
 		if err != nil {
-			log.Printf("failed to write response: %s", err.Error())
+			cancel()
+			return err
 		}
 
 		err = json.NewEncoder(w).Encode(response)
 		if err != nil {
-			log.Printf("failed to write response: %s", err.Error())
-			return nil
+			cancel()
+			return err
+		}
+		if resp.Done {
+			close(doneChan)
 		}
 
-		if resp.Done {
-			wg.Done()
-		}
 		return nil
 	})
 
-	wg.Wait()
+	if err == nil {
+		select {
+		case <-r.Context().Done():
+			err = r.Context().Err()
+		case <-doneChan:
+		}
+	}
 
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
