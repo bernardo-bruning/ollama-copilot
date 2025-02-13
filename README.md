@@ -71,6 +71,27 @@ let g:copilot_proxy_strict_ssl = v:false
 }
 ```
 
+### Emacs
+
+(experimental)
+
+1. Install [copilot-emacs](https://github.com/copilot-emacs/copilot.el)
+1. Configure the proxy
+
+```elisp
+(use-package copilot
+  :straight (:host github :repo "copilot-emacs/copilot.el" :files ("*.el"))  ;; if you don't use "straight", install otherwise
+  :ensure t
+  ;; :hook (prog-mode . copilot-mode)
+  :bind (
+         ("C-<tab>" . copilot-accept-completion)
+         )
+  :config
+  (setq copilot-network-proxy '(:host "127.0.0.1" :port 11434 :rejectUnauthorized :json-false))
+  )
+```
+
+
 ## Roadmap
 
 - [x] Enable completions APIs usage; fill in the middle.
