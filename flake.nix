@@ -45,7 +45,7 @@
         pkgs.buildGoModule rec {
           name = "ollama-copilot";
           src = ./.;
-          vendorHash = "sha256-g27MqS3qk67sve/jexd07zZVLR+aZOslXrXKjk9BWtk=";
+          vendorHash = "sha256-Lo7IurCQwkQpZe/UncBPn4bz4eASEHJ67RJaOka2Rc4=";
           meta.mainProgram = "ollama-copilot";
         };
     };
