@@ -9,7 +9,6 @@ import (
 	"log"
 	"math/big"
 	"net/http"
-	"text/template"
 	"time"
 
 	"github.com/bernardo-bruning/ollama-copilot/internal/handlers"
@@ -23,7 +22,6 @@ type Server struct {
 	Port        string
 	Certificate string
 	Key         string
-	Template    string
 	Model       string
 	NumPredict  int
 }
@@ -97,19 +95,13 @@ func (s *Server) mux() http.Handler {
 		return nil
 	}
 
-	templ, err := template.New("prompt").Parse(s.Template)
-	if err != nil {
-		log.Fatalf("error parsing template: %s", err.Error())
-		return nil
-	}
-
 	mux := http.NewServeMux()
 
 	mux.Handle("/health", handlers.NewHealthHandler())
 	mux.Handle("/copilot_internal/v2/token", handlers.NewTokenHandler())
-	mux.Handle("/v1/engines/copilot-codex/completions", handlers.NewCompletionHandler(api, s.Model, templ, s.NumPredict))
-	mux.Handle("/v1/engines/chat-control/completions", handlers.NewCompletionHandler(api, s.Model, templ, s.NumPredict))
-  mux.Handle("/v1/engines/gpt-4o-copilot/completions", handlers.NewCompletionHandler(api, s.Model, templ, s.NumPredict))
+	mux.Handle("/v1/engines/copilot-codex/completions", handlers.NewCompletionHandler(api, s.Model, s.NumPredict))
+	mux.Handle("/v1/engines/chat-control/completions", handlers.NewCompletionHandler(api, s.Model, s.NumPredict))
+    mux.Handle("/v1/engines/gpt-4o-copilot/completions", handlers.NewCompletionHandler(api, s.Model, s.NumPredict))
 
 	return middleware.LogMiddleware(mux)
 }

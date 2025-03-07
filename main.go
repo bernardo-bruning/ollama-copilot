@@ -15,7 +15,6 @@ var (
 	key          = flag.String("key", "", "Key file path *.key")
 	model        = flag.String("model", "codellama:code", "LLM model to use")
 	numPredict   = flag.Int("num-predict", 50, "Number of predictions to return")
-	templateStr  = flag.String("template", "<PRE> {{.Prefix}} <SUF> {{.Suffix}} <MID>", "Fill-in-middle template to apply in prompt")
 )
 
 // main is the entrypoint for the program.
@@ -26,7 +25,6 @@ func main() {
 		Port:        *port,
 		Certificate: *cert,
 		Key:         *key,
-		Template:    *templateStr,
 		Model:       *model,
 		NumPredict:  *numPredict,
 	}
