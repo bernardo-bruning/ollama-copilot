@@ -43,6 +43,11 @@ export PATH="$HOME/go/bin:$GOPATH/bin:$PATH"
 ollama-copilot
 ```
 
+or if you are hosting ollama in a container or elsewhere
+```bash
+OLLAMA_HOST="http://192.168.133.7:11434" ollama-copilot
+```
+
 ## Configure IDE
 
 ### Neovim
