@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"log"
 	"net/http"
-	"text/template"
 	"time"
 
 	"github.com/google/uuid"
@@ -61,27 +59,16 @@ type Prompt struct {
 	Suffix string
 }
 
-func (p Prompt) Generate(templ *template.Template) string {
-	var buf = new(bytes.Buffer)
-	err := templ.Execute(buf, p)
-	if err != nil {
-		log.Printf("error executing prompt template: %s", err.Error())
-	}
-
-	return buf.String()
-}
-
 // CompletionHandler is an http.Handler that returns completions.
 type CompletionHandler struct {
 	api        *api.Client
 	model      string
-	templ      *template.Template
 	numPredict int
 }
 
 // NewCompletionHandler returns a new CompletionHandler.
-func NewCompletionHandler(api *api.Client, model string, template *template.Template, numPredict int) *CompletionHandler {
-	return &CompletionHandler{api, model, template, numPredict}
+func NewCompletionHandler(api *api.Client, model string, numPredict int) *CompletionHandler {
+	return &CompletionHandler{api, model, numPredict}
 }
 
 // ServeHTTP implements http.Handler.
@@ -103,7 +90,8 @@ func (c *CompletionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	generate := api.GenerateRequest{
 		Model:  c.model,
-		Prompt: Prompt{Prefix: req.Prompt, Suffix: req.Suffix}.Generate(c.templ),
+		Prompt: req.Prompt,
+		Suffix: req.Suffix,
 		Options: map[string]interface{}{
 			"temperature": req.Temperature,
 			"top_p":       req.TopP,
