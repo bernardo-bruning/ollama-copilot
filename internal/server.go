@@ -109,6 +109,7 @@ func (s *Server) mux() http.Handler {
 	mux.Handle("/copilot_internal/v2/token", handlers.NewTokenHandler())
 	mux.Handle("/v1/engines/copilot-codex/completions", handlers.NewCompletionHandler(api, s.Model, templ, s.NumPredict))
 	mux.Handle("/v1/engines/chat-control/completions", handlers.NewCompletionHandler(api, s.Model, templ, s.NumPredict))
+  mux.Handle("/v1/engines/gpt-4o-copilot/completions", handlers.NewCompletionHandler(api, s.Model, templ, s.NumPredict))
 
 	return middleware.LogMiddleware(mux)
 }
