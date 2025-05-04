@@ -76,6 +76,26 @@ let g:copilot_proxy_strict_ssl = v:false
 }
 ```
 
+### Zed
+
+1. [Open settings](https://zed.dev/docs/configuring-zed) (ctrl + ,)
+1. Set up [edit completion proxying](https://github.com/zed-industries/zed/pull/24364):
+
+```json
+{
+    "features": {
+        "edit_prediction_provider": "copilot"
+    },
+    "show_completions_on_input": true,
+    "edit_predictions": {
+        "copilot": {
+            "proxy": "http://localhost:11435",
+            "proxy_no_verify": true
+        }
+    }
+}
+```
+
 ### Emacs
 
 (experimental)
