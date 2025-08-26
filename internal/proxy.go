@@ -35,6 +35,7 @@ var hosts = []string{
 	"api.github.com",
 	"copilot-proxy.githubusercontent.com",
 	"proxy.individual.githubcopilot.com",
+	"proxy.business.githubcopilot.com",
 	"copilot-telemetry.githubusercontent.com",
 }
 
