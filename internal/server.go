@@ -111,5 +111,5 @@ func (s *Server) mux() http.Handler {
 	mux.Handle("/v1/engines/chat-control/completions", handlers.NewCompletionHandler(api, s.Model, templ, s.NumPredict))
   mux.Handle("/v1/engines/gpt-4o-copilot/completions", handlers.NewCompletionHandler(api, s.Model, templ, s.NumPredict))
 
-	return middleware.LogMiddleware(mux)
+	return middleware.LogMiddleware(middleware.GithubHeaderMiddleware(mux))
 }
