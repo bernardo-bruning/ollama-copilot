@@ -9,6 +9,8 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/bernardo-bruning/ollama-copilot/internal/adapters"
+	"github.com/bernardo-bruning/ollama-copilot/internal/ports"
 	"github.com/google/uuid"
 	"github.com/ollama/ollama/api"
 )
@@ -73,15 +75,16 @@ func (p Prompt) Generate(templ *template.Template) string {
 
 // CompletionHandler is an http.Handler that returns completions.
 type CompletionHandler struct {
-	api        *api.Client
+	provider   ports.Provider
 	model      string
 	templ      *template.Template
 	numPredict int
 }
 
 // NewCompletionHandler returns a new CompletionHandler.
-func NewCompletionHandler(api *api.Client, model string, template *template.Template, numPredict int) *CompletionHandler {
-	return &CompletionHandler{api, model, template, numPredict}
+func NewCompletionHandler(client *api.Client, model string, template *template.Template, numPredict int) *CompletionHandler {
+	provider := adapters.NewOllama(client, model, numPredict)
+	return &CompletionHandler{provider, model, template, numPredict}
 }
 
 // ServeHTTP implements http.Handler.
@@ -101,22 +104,16 @@ func (c *CompletionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	generate := api.GenerateRequest{
-		Model:  c.model,
-		Prompt: Prompt{Prefix: req.Prompt, Suffix: req.Suffix}.Generate(c.templ),
-		Options: map[string]interface{}{
-			"temperature": req.Temperature,
-			"top_p":       req.TopP,
-			"stop":        req.Stop,
-			"num_predict": c.numPredict,
-		},
-	}
-
 	ctx, cancel := context.WithTimeout(r.Context(), time.Second*60)
 	r = r.WithContext(ctx)
 	defer cancel()
 	doneChan := make(chan struct{})
-	err := c.api.Generate(r.Context(), &generate, func(resp api.GenerateResponse) error {
+	err := c.provider.Completion(r.Context(), ports.CompletionRequest{
+		Prompt:      Prompt{Prefix: req.Prompt, Suffix: req.Suffix}.Generate(c.templ),
+		Temperature: req.Temperature,
+		TopP:        req.TopP,
+		Stop:        req.Stop,
+	}, func(resp ports.CompletionResponse) error {
 		response := CompletionResponse{
 			Id:      uuid.New().String(),
 			Created: time.Now().Unix(),
