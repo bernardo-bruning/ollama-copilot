@@ -12,6 +12,7 @@ import (
 	"text/template"
 	"time"
 
+	"github.com/bernardo-bruning/ollama-copilot/internal/adapters"
 	"github.com/bernardo-bruning/ollama-copilot/internal/handlers"
 	"github.com/bernardo-bruning/ollama-copilot/internal/middleware"
 	"github.com/ollama/ollama/api"
@@ -96,6 +97,8 @@ func (s *Server) mux() http.Handler {
 		return nil
 	}
 
+	provider := adapters.NewOllama(api, s.Model, s.NumPredict)
+
 	templ, err := template.New("prompt").Parse(s.Template)
 	if err != nil {
 		log.Fatalf("error parsing template: %s", err.Error())
@@ -104,12 +107,14 @@ func (s *Server) mux() http.Handler {
 
 	mux := http.NewServeMux()
 
+	completionHandler := handlers.NewCompletionHandler(provider, templ)
+
 	mux.Handle("/health", handlers.NewHealthHandler())
 	mux.Handle("/copilot_internal/v2/token", handlers.NewTokenHandler())
-	mux.Handle("/v1/engines/copilot-codex/completions", handlers.NewCompletionHandler(api, s.Model, templ, s.NumPredict))
-	mux.Handle("/v1/engines/chat-control/completions", handlers.NewCompletionHandler(api, s.Model, templ, s.NumPredict))
-	mux.Handle("/v1/engines/gpt-4o-copilot/completions", handlers.NewCompletionHandler(api, s.Model, templ, s.NumPredict))
-	mux.Handle("/v1/engines/gpt-41-copilot/completions", handlers.NewCompletionHandler(api, s.Model, templ, s.NumPredict))
+	mux.Handle("/v1/engines/copilot-codex/completions", completionHandler)
+	mux.Handle("/v1/engines/chat-control/completions", completionHandler)
+	mux.Handle("/v1/engines/gpt-4o-copilot/completions", completionHandler)
+	mux.Handle("/v1/engines/gpt-41-copilot/completions", completionHandler)
 
 	return middleware.LogMiddleware(middleware.GithubHeaderMiddleware(mux))
 }

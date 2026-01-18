@@ -9,10 +9,8 @@ import (
 	"text/template"
 	"time"
 
-	"github.com/bernardo-bruning/ollama-copilot/internal/adapters"
 	"github.com/bernardo-bruning/ollama-copilot/internal/ports"
 	"github.com/google/uuid"
-	"github.com/ollama/ollama/api"
 )
 
 // CompletionRequest is the request sent to the completion handler
@@ -75,16 +73,13 @@ func (p Prompt) Generate(templ *template.Template) string {
 
 // CompletionHandler is an http.Handler that returns completions.
 type CompletionHandler struct {
-	provider   ports.Provider
-	model      string
-	templ      *template.Template
-	numPredict int
+	provider ports.Provider
+	templ    *template.Template
 }
 
 // NewCompletionHandler returns a new CompletionHandler.
-func NewCompletionHandler(client *api.Client, model string, template *template.Template, numPredict int) *CompletionHandler {
-	provider := adapters.NewOllama(client, model, numPredict)
-	return &CompletionHandler{provider, model, template, numPredict}
+func NewCompletionHandler(provider ports.Provider, template *template.Template) *CompletionHandler {
+	return &CompletionHandler{provider, template}
 }
 
 // ServeHTTP implements http.Handler.
