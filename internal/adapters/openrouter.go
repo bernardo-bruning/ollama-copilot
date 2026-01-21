@@ -10,22 +10,32 @@ import (
 )
 
 type OpenRouter struct {
-	client *http.Client
-	token  string
+	client  *http.Client
+	token   string
+	model   string
+	BaseURL string
 }
 
-func NewOpenRouter(token string) *OpenRouter {
+func NewOpenRouter(token string, model string) *OpenRouter {
+	return NewOpenRouterWithBaseURL(token, model, "https://openrouter.ai/api/v1")
+}
+
+func NewOpenRouterWithBaseURL(token string, model string, baseURL string) *OpenRouter {
 	return &OpenRouter{
-		client: &http.Client{},
-		token:  token,
+		client:  &http.Client{},
+		token:   token,
+		model:   model,
+		BaseURL: baseURL,
 	}
 }
 
 func (o *OpenRouter) Completion(ctx context.Context, req ports.CompletionRequest, callback func(resp ports.CompletionResponse) error) error {
 	reqBody := struct {
 		Prompt string `json:"prompt"`
+		Model  string `json:"model,omitempty"`
 	}{
 		Prompt: req.Prompt,
+		Model:  o.model,
 	}
 
 	buffer := &bytes.Buffer{}
@@ -34,7 +44,7 @@ func (o *OpenRouter) Completion(ctx context.Context, req ports.CompletionRequest
 		return err
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", "https://api.openrouter.ai/v1/chat/completions", buffer)
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", o.BaseURL+"/completions", buffer)
 	if err != nil {
 		return err
 	}
@@ -48,5 +58,23 @@ func (o *OpenRouter) Completion(ctx context.Context, req ports.CompletionRequest
 	}
 	defer httpResp.Body.Close()
 
-	panic("not implemented")
+	respBody := struct {
+		Choices []struct {
+			Text string `json:"text"`
+		} `json:"choices"`
+	}{}
+
+	decoder := json.NewDecoder(httpResp.Body)
+	if err := decoder.Decode(&respBody); err != nil {
+		return err
+	}
+
+	if len(respBody.Choices) == 0 {
+		return nil
+	}
+
+	return callback(ports.CompletionResponse{
+		Response: respBody.Choices[0].Text,
+		Done:     true,
+	})
 }
