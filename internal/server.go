@@ -91,13 +91,11 @@ func selfAssignCertificate() (tls.Certificate, error) {
 
 // mux returns the main mux for the server.
 func (s *Server) mux() http.Handler {
-	api, err := api.ClientFromEnvironment()
+	provider, err := adapters.NewOllama(s.Model, s.NumPredict)
 	if err != nil {
 		log.Fatalf("error initialize api: %s", err.Error())
 		return nil
 	}
-
-	provider := adapters.NewOllama(api, s.Model, s.NumPredict)
 
 	templ, err := template.New("prompt").Parse(s.Template)
 	if err != nil {

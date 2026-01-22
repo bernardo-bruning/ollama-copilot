@@ -14,12 +14,17 @@ type Ollama struct {
 }
 
 // NewOllama creates a new Ollama adapter
-func NewOllama(client *api.Client, model string, numPredict int) ports.Provider {
+func NewOllama(model string, numPredict int) (ports.Provider, error) {
+	client, err := api.ClientFromEnvironment()
+	if err != nil {
+		return nil, err
+	}
+
 	return &Ollama{
 		model:      model,
 		numPredict: numPredict,
 		client:     client,
-	}
+	}, nil
 }
 
 // Completion is the completion handler for Ollama
