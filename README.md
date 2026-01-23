@@ -1,3 +1,4 @@
+[![PDD status](https://www.0pdd.com/svg?name=bernardo-bruning/ollama-copilot)](https://www.0pdd.com/p?name=bernardo-bruning/ollama-copilot)
 # Ollama Copilot
 
 Proxy that allows you to use ollama as a copilot like Github copilot
