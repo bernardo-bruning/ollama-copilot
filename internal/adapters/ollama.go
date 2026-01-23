@@ -10,11 +10,12 @@ import (
 type Ollama struct {
 	model      string
 	numPredict int
+	system     string
 	client     *api.Client
 }
 
 // NewOllama creates a new Ollama adapter
-func NewOllama(model string, numPredict int) (ports.Provider, error) {
+func NewOllama(model string, numPredict int, system string) (ports.Provider, error) {
 	client, err := api.ClientFromEnvironment()
 	if err != nil {
 		return nil, err
@@ -24,6 +25,7 @@ func NewOllama(model string, numPredict int) (ports.Provider, error) {
 		model:      model,
 		numPredict: numPredict,
 		client:     client,
+		system:     system,
 	}, nil
 }
 
@@ -32,6 +34,7 @@ func (o *Ollama) Completion(ctx context.Context, req ports.CompletionRequest, ca
 	generate := api.GenerateRequest{
 		Model:  o.model,
 		Prompt: req.Prompt,
+		System: o.system,
 		Options: map[string]interface{}{
 			"temperature": req.Temperature,
 			"top_p":       req.TopP,

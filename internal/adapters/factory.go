@@ -8,10 +8,10 @@ import (
 
 var ErrUnknownProvider = errors.New("unknown provider")
 
-func NewProvider(provider string, model string, token string, numPredict int) (ports.Provider, error) {
+func NewProvider(provider string, model string, token string, numPredict int, system string) (ports.Provider, error) {
 	switch provider {
 	case "ollama":
-		return NewOllama(model, numPredict)
+		return NewOllama(model, numPredict, system)
 	case "openrouter":
 		return NewOpenRouter(token, model), nil
 	// TODO #40:30 min create provider DeepSeek

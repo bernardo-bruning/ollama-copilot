@@ -33,6 +33,7 @@ func Proxy(port string, forward string) {
 var hosts = []string{
 	"api.githubcopilot.com",
 	"api.github.com",
+	"api.individual.githubcopilot.com",
 	"copilot-proxy.githubusercontent.com",
 	"proxy.individual.githubcopilot.com",
 	"proxy.business.githubcopilot.com",
