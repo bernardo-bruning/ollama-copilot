@@ -49,6 +49,23 @@ or if you are hosting ollama in a container or elsewhere
 OLLAMA_HOST="http://192.168.133.7:11434" ollama-copilot
 ```
 
+## Configuration
+
+You can configure the server using command-line flags:
+
+| Flag | Default | Description |
+|------|---------|-------------|
+| `-port` | `:11437` | HTTP port to listen on |
+| `-proxy-port` | `:11438` | HTTP proxy port |
+| `-port-ssl` | `:11436` | HTTPS port to listen on |
+| `-proxy-port-ssl` | `:11435` | HTTPS proxy port |
+| `-cert` | | Certificate file path (`*.crt`) for custom TLS |
+| `-key` | | Key file path (`*.key`) for custom TLS |
+| `-model` | `codellama:code` | LLM model to use |
+| `-num-predict` | `50` | Number of tokens to predict |
+| `-template` | `<PRE> {{.Prefix}} <SUF> {{.Suffix}} <MID>` | Prompt template for fill-in-middle |
+| `-system` | `You are a helpful...` | System prompt to guide the model |
+
 ## Configure IDE
 
 ### Neovim
