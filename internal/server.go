@@ -15,7 +15,6 @@ import (
 	"github.com/bernardo-bruning/ollama-copilot/internal/adapters"
 	"github.com/bernardo-bruning/ollama-copilot/internal/handlers"
 	"github.com/bernardo-bruning/ollama-copilot/internal/middleware"
-	"github.com/ollama/ollama/api"
 )
 
 // Server is the main server struct.
@@ -91,6 +90,7 @@ func selfAssignCertificate() (tls.Certificate, error) {
 
 // mux returns the main mux for the server.
 func (s *Server) mux() http.Handler {
+	// TODO #39:30min refactory to use factory provider
 	provider, err := adapters.NewOllama(s.Model, s.NumPredict)
 	if err != nil {
 		log.Fatalf("error initialize api: %s", err.Error())
