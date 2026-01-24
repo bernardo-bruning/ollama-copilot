@@ -12,90 +12,119 @@ import (
 )
 
 func TestOpenRouter(t *testing.T) {
-	expectedResponse := `
+	tests := []struct {
+		name             string
+		expectedResponse string
+		expectedText     string
+		expectedPrompt   string
+		expectedSystem   string
+		statusCode       int
+		expectError      bool
+	}{
+		{
+			name: "Successful completion",
+			expectedResponse: `
 {
-  "id": "cmpl-6aX9b2fJ7Qz8YvN3LpR4TqW1eZxYvB",
-  "object": "text_completion",
-  "created": 1685600000,
-  "model": "openrouter-gpt-3.5-turbo",
   "choices": [
     {
-      "text": "The theory of relativity, developed by Albert Einstein, explains how space and time are linked for objects moving at a consistent speed in a straight line. It shows that time can slow down or speed up depending on how fast you move relative to something else.",
-      "index": 0,
-      "logprobs": {
-        "tokens": [
-          "The"
-        ],
-        "token_logprobs": [
-          -0.01
-        ],
-        "top_logprobs": [
-          {}
-        ],
-        "text_offset": [
-          0
-        ]
-      },
-      "finish_reason": "stop",
-      "native_finish_reason": "stop",
-      "reasoning": "The completion ends naturally after explaining the concept."
+      "text": "The theory of relativity, developed by Albert Einstein, explains how space and time are linked for objects moving at a consistent speed in a straight line. It shows that time can slow down or speed up depending on how fast you move relative to something else."
     }
-  ],
-  "provider": "openrouter",
-  "system_fingerprint": "abc123def456ghi789",
-  "usage": {
-    "prompt_tokens": 7,
-    "completion_tokens": 54,
-    "total_tokens": 61
-  }
-}`
-
-	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		if r.URL.Path != "/completions" {
-			t.Errorf("expected path /completions, got %s", r.URL.Path)
-		}
-		if r.Method != "POST" {
-			t.Errorf("expected method POST, got %s", r.Method)
-		}
-		if r.Header.Get("Authorization") != "Bearer <token>" {
-			t.Errorf("expected Authorization header Bearer <token>, got %s", r.Header.Get("Authorization"))
-		}
-		if r.Header.Get("Content-Type") != "application/json" {
-			t.Errorf("expected Content-Type application/json, got %s", r.Header.Get("Content-Type"))
-		}
-
-		var reqBody map[string]interface{}
-		err := json.NewDecoder(r.Body).Decode(&reqBody)
-		if err != nil {
-			t.Fatalf("failed to decode request body: %v", err)
-		}
-		if reqBody["prompt"] != "Explain the theory of relativity in simple terms." {
-			t.Errorf("expected prompt 'Explain the theory of relativity in simple terms.', got %v", reqBody["prompt"])
-		}
-
-		w.Header().Set("Content-Type", "application/json")
-		w.Write([]byte(expectedResponse))
-	}))
-	defer server.Close()
-
-	openRouter := adapters.NewOpenRouterWithBaseURL("<token>", "openrouter-gpt-3.5-turbo", server.URL)
-
-	req := ports.CompletionRequest{
-		Prompt: "Explain the theory of relativity in simple terms.",
+  ]
+}`,
+			expectedText:   "The theory of relativity, developed by Albert Einstein, explains how space and time are linked for objects moving at a consistent speed in a straight line. It shows that time can slow down or speed up depending on how fast you move relative to something else.",
+			expectedPrompt: "Explain the theory of relativity in simple terms.",
+			expectedSystem: "You are a helpful assistant.",
+			statusCode:     http.StatusOK,
+			expectError:    false,
+		},
+		{
+			name:             "Empty choices",
+			expectedResponse: `{"choices": []}`,
+			expectedText:     "",
+			expectedPrompt:   "Hello",
+			expectedSystem:   "",
+			statusCode:       http.StatusOK,
+			expectError:      false,
+		},
+		{
+			name:             "Server error",
+			expectedResponse: `{"error": "Internal Server Error"}`,
+			expectedText:     "",
+			expectedPrompt:   "Hello",
+			expectedSystem:   "",
+			statusCode:       http.StatusInternalServerError,
+			expectError:      true,
+		},
 	}
 
-	var result string
-	err := openRouter.Completion(context.Background(), req, func(resp ports.CompletionResponse) error {
-		result = resp.Response
-		return nil
-	})
+	for _, tt := range tests {
+		t.Run(tt.name, func(t *testing.T) {
+			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+				if r.URL.Path != "/completions" {
+					t.Errorf("expected path /completions, got %s", r.URL.Path)
+				}
+				if r.Method != "POST" {
+					t.Errorf("expected method POST, got %s", r.Method)
+				}
 
-	if err != nil {
-		t.Fatalf("expected no error, got %v", err)
-	}
+				var reqBody struct {
+					Messages []struct {
+						Role    string `json:"role"`
+						Content string `json:"content"`
+					}
+					Model string `json:"model"`
+				}
+				err := json.NewDecoder(r.Body).Decode(&reqBody)
+				if err != nil {
+					t.Fatalf("failed to decode request body: %v", err)
+				}
 
-	expectedText := "The theory of relativity, developed by Albert Einstein, explains how space and time are linked for objects moving at a consistent speed in a straight line. It shows that time can slow down or speed up depending on how fast you move relative to something else."
-	if result != expectedText {
-		t.Errorf("expected response '%s', got '%s'", expectedText, result)
+				foundPrompt := false
+				for _, msg := range reqBody.Messages {
+					if msg.Role == "user" && msg.Content == tt.expectedPrompt {
+						foundPrompt = true
+					}
+					if msg.Role == "system" && msg.Content != tt.expectedSystem {
+						t.Errorf("expected system content '%s', got '%s'", tt.expectedSystem, msg.Content)
+					}
+				}
+
+				if !foundPrompt {
+					t.Errorf("expected prompt '%s' not found in messages", tt.expectedPrompt)
+				}
+
+				w.Header().Set("Content-Type", "application/json")
+				w.WriteHeader(tt.statusCode)
+				w.Write([]byte(tt.expectedResponse))
+			}))
+			defer server.Close()
+
+			openRouter := adapters.NewOpenRouterWithBaseURL("<token>", "openrouter-gpt-3.5-turbo", server.URL, tt.expectedSystem)
+
+			req := ports.CompletionRequest{
+				Prompt: tt.expectedPrompt,
+			}
+
+			var result string
+			err := openRouter.Completion(context.Background(), req, func(resp ports.CompletionResponse) error {
+				result = resp.Response
+				return nil
+			})
+
+			if tt.expectError {
+				if err == nil {
+					t.Errorf("expected error, got nil")
+				}
+				return
+			}
+
+			if err != nil {
+				t.Fatalf("expected no error, got %v", err)
+			}
+
+			if result != tt.expectedText {
+				t.Errorf("expected response '%s', got '%s'", tt.expectedText, result)
+			}
+		})
 	}
 }

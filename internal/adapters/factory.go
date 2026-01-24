@@ -13,7 +13,7 @@ func NewProvider(provider string, model string, token string, numPredict int, sy
 	case "ollama":
 		return NewOllama(model, numPredict, system)
 	case "openrouter":
-		return NewOpenRouter(token, model), nil
+		return NewOpenRouter(token, model, system), nil
 	// TODO #40:30 min create provider DeepSeek
 	// TODO #41:30 min create provider Mistral
 	default:
