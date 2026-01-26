@@ -19,7 +19,7 @@ type OpenRouter struct {
 }
 
 func NewOpenRouter(token string, model string, system string) *OpenRouter {
-	return NewOpenRouterWithBaseURL(token, model, system, "https://openrouter.ai/api/v1")
+	return NewOpenRouterWithBaseURL(token, model, "https://openrouter.ai/api/v1", system)
 }
 
 func NewOpenRouterWithBaseURL(token string, model string, baseURL string, system string) *OpenRouter {
@@ -61,7 +61,7 @@ func (o *OpenRouter) Completion(ctx context.Context, req ports.CompletionRequest
 		return err
 	}
 
-	httpReq, err := http.NewRequestWithContext(ctx, "POST", o.BaseURL+"/completions", buffer)
+	httpReq, err := http.NewRequestWithContext(ctx, "POST", o.BaseURL+"/chat/completions", buffer)
 	if err != nil {
 		return err
 	}
@@ -81,7 +81,9 @@ func (o *OpenRouter) Completion(ctx context.Context, req ports.CompletionRequest
 
 	respBody := struct {
 		Choices []struct {
-			Text string `json:"text"`
+			Message struct {
+				Content string `json:"content"`
+			} `json:"message"`
 		} `json:"choices"`
 	}{}
 
@@ -95,7 +97,7 @@ func (o *OpenRouter) Completion(ctx context.Context, req ports.CompletionRequest
 	}
 
 	return callback(ports.CompletionResponse{
-		Response: respBody.Choices[0].Text,
+		Response: respBody.Choices[0].Message.Content,
 		Done:     true,
 	})
 }

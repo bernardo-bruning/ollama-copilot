@@ -11,6 +11,8 @@ var (
 	proxyPort    = flag.String("proxy-port", ":11438", "Proxy port to listen on")
 	portSSL      = flag.String("port-ssl", ":11436", "Port to listen on")
 	proxyPortSSL = flag.String("proxy-port-ssl", ":11435", "Proxy port to listen on")
+	provider     = flag.String("provider", "ollama", "Provider to run LLM")
+	token        = flag.String("token", "", "Token to pass for provider")
 	cert         = flag.String("cert", "", "Certificate file path *.crt")
 	key          = flag.String("key", "", "Key file path *.key")
 	model        = flag.String("model", "codellama:code", "LLM model to use")
@@ -28,6 +30,8 @@ func main() {
 		Certificate: *cert,
 		Key:         *key,
 		Template:    *templateStr,
+		Provider:    *provider,
+		Token:       *token,
 		Model:       *model,
 		NumPredict:  *numPredict,
 		System:      *system,

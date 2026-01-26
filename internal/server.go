@@ -24,6 +24,8 @@ type Server struct {
 	Certificate string
 	Key         string
 	Template    string
+	Provider    string
+	Token       string
 	Model       string
 	NumPredict  int
 	System      string
@@ -91,8 +93,7 @@ func selfAssignCertificate() (tls.Certificate, error) {
 
 // mux returns the main mux for the server.
 func (s *Server) mux() http.Handler {
-	// TODO #39:30min refactory to use factory provider
-	provider, err := adapters.NewOllama(s.Model, s.NumPredict, s.System)
+	provider, err := adapters.NewProvider(s.Provider, s.Model, s.Token, s.NumPredict, s.System)
 	if err != nil {
 		log.Fatalf("error initialize api: %s", err.Error())
 		return nil

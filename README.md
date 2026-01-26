@@ -61,6 +61,8 @@ You can configure the server using command-line flags:
 | `-proxy-port-ssl` | `:11435` | HTTPS proxy port |
 | `-cert` | | Certificate file path (`*.crt`) for custom TLS |
 | `-key` | | Key file path (`*.key`) for custom TLS |
+| `-provider` | `ollama` | Provider to run LLM |
+| `-token` | `TOKEN` | Token to pass for provider |
 | `-model` | `codellama:code` | LLM model to use |
 | `-num-predict` | `50` | Number of tokens to predict |
 | `-template` | `<PRE> {{.Prefix}} <SUF> {{.Suffix}} <MID>` | Prompt template for fill-in-middle |
