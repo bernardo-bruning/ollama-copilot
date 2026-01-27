@@ -9,7 +9,6 @@ import (
 	"log"
 	"math/big"
 	"net/http"
-	"text/template"
 	"time"
 
 	"github.com/bernardo-bruning/ollama-copilot/internal/adapters"
@@ -93,21 +92,15 @@ func selfAssignCertificate() (tls.Certificate, error) {
 
 // mux returns the main mux for the server.
 func (s *Server) mux() http.Handler {
-	provider, err := adapters.NewProvider(s.Provider, s.Model, s.Token, s.NumPredict, s.System)
+	provider, err := adapters.NewProvider(s.Provider, s.Model, s.Token, s.NumPredict, s.System, s.Template)
 	if err != nil {
 		log.Fatalf("error initialize api: %s", err.Error())
 		return nil
 	}
 
-	templ, err := template.New("prompt").Parse(s.Template)
-	if err != nil {
-		log.Fatalf("error parsing template: %s", err.Error())
-		return nil
-	}
-
 	mux := http.NewServeMux()
 
-	completionHandler := handlers.NewCompletionHandler(provider, templ)
+	completionHandler := handlers.NewCompletionHandler(provider)
 
 	mux.Handle("/health", handlers.NewHealthHandler())
 	mux.Handle("/copilot_internal/v2/token", handlers.NewTokenHandler())

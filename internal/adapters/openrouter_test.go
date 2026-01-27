@@ -27,7 +27,9 @@ func TestOpenRouter(t *testing.T) {
 {
   "choices": [
     {
-      "text": "The theory of relativity, developed by Albert Einstein, explains how space and time are linked for objects moving at a consistent speed in a straight line. It shows that time can slow down or speed up depending on how fast you move relative to something else."
+      "message": {
+        "content": "The theory of relativity, developed by Albert Einstein, explains how space and time are linked for objects moving at a consistent speed in a straight line. It shows that time can slow down or speed up depending on how fast you move relative to something else."
+      }
     }
   ]
 }`,
@@ -60,8 +62,8 @@ func TestOpenRouter(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.URL.Path != "/completions" {
-					t.Errorf("expected path /completions, got %s", r.URL.Path)
+				if r.URL.Path != "/chat/completions" {
+					t.Errorf("expected path /chat/completions, got %s", r.URL.Path)
 				}
 				if r.Method != "POST" {
 					t.Errorf("expected method POST, got %s", r.Method)
@@ -99,7 +101,7 @@ func TestOpenRouter(t *testing.T) {
 			}))
 			defer server.Close()
 
-			openRouter := adapters.NewOpenRouterWithBaseURL("<token>", "openrouter-gpt-3.5-turbo", server.URL, tt.expectedSystem)
+			openRouter := adapters.NewOpenRouterWithBaseURL("<token>", "openrouter-gpt-3.5-turbo", server.URL, tt.expectedSystem, "")
 
 			req := ports.CompletionRequest{
 				Prompt: tt.expectedPrompt,

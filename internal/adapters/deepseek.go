@@ -34,6 +34,7 @@ func (d *DeepSeek) Completion(ctx context.Context, req ports.CompletionRequest, 
 	deepSeekRequest := DeepSeekRequest{
 		Model:       d.model,
 		Prompt:      req.Prompt,
+		Suffix:      req.Suffix,
 		Temperature: req.Temperature,
 		TopP:        req.TopP,
 		MaxTokens:   d.maxTokens,

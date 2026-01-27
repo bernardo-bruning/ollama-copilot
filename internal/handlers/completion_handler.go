@@ -1,12 +1,10 @@
 package handlers
 
 import (
-	"bytes"
 	"context"
 	"encoding/json"
 	"log"
 	"net/http"
-	"text/template"
 	"time"
 
 	"github.com/bernardo-bruning/ollama-copilot/internal/ports"
@@ -55,31 +53,14 @@ type CompletionResponse struct {
 	Choices []ChoiceResponse `json:"choices"`
 }
 
-// Prompt is an repreentation of a prompt with suffi and prefix
-type Prompt struct {
-	Prefix string
-	Suffix string
-}
-
-func (p Prompt) Generate(templ *template.Template) string {
-	var buf = new(bytes.Buffer)
-	err := templ.Execute(buf, p)
-	if err != nil {
-		log.Printf("error executing prompt template: %s", err.Error())
-	}
-
-	return buf.String()
-}
-
 // CompletionHandler is an http.Handler that returns completions.
 type CompletionHandler struct {
 	provider ports.Provider
-	templ    *template.Template
 }
 
 // NewCompletionHandler returns a new CompletionHandler.
-func NewCompletionHandler(provider ports.Provider, template *template.Template) *CompletionHandler {
-	return &CompletionHandler{provider, template}
+func NewCompletionHandler(provider ports.Provider) *CompletionHandler {
+	return &CompletionHandler{provider}
 }
 
 // ServeHTTP implements http.Handler.
@@ -104,7 +85,8 @@ func (c *CompletionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 	defer cancel()
 	doneChan := make(chan struct{})
 	err := c.provider.Completion(r.Context(), ports.CompletionRequest{
-		Prompt:      Prompt{Prefix: req.Prompt, Suffix: req.Suffix}.Generate(c.templ),
+		Prompt:      req.Prompt,
+		Suffix:      req.Suffix,
 		Temperature: req.Temperature,
 		TopP:        req.TopP,
 		Stop:        req.Stop,

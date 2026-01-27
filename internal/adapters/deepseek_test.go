@@ -9,11 +9,13 @@ import (
 )
 
 type FakeHttpClient struct {
-	Returns adapters.DeepSeekResponse
+	Returns     adapters.DeepSeekResponse
+	LastRequest any
 }
 
 // Post implements [HttpClient].
 func (f *FakeHttpClient) Post(url string, req any, resp any) error {
+	f.LastRequest = req
 	if r, ok := resp.(*adapters.DeepSeekResponse); ok {
 		r.Choices.Text = f.Returns.Choices.Text
 	}
@@ -39,6 +41,7 @@ func TestDeepSeek(t *testing.T) {
 		executed := false
 		req := ports.CompletionRequest{
 			Prompt:      "func ",
+			Suffix:      "}",
 			Temperature: 1.0,
 			TopP:        2,
 			Stop:        []string{"EOF"},
@@ -55,6 +58,15 @@ func TestDeepSeek(t *testing.T) {
 
 		if !executed {
 			t.Fatal("Deepseek not call function completion")
+		}
+
+		deepSeekRequest, ok := httpClient.LastRequest.(adapters.DeepSeekRequest)
+		if !ok {
+			t.Fatalf("expected DeepSeekRequest, got %T", httpClient.LastRequest)
+		}
+
+		if deepSeekRequest.Suffix != "}" {
+			t.Errorf("expected suffix \"}\", got \"%s\"", deepSeekRequest.Suffix)
 		}
 	})
 

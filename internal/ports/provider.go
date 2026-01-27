@@ -12,6 +12,7 @@ type Provider interface {
 // CompletionRequest is the request for a completion provider
 type CompletionRequest struct {
 	Prompt      string
+	Suffix      string
 	Temperature float64
 	TopP        int
 	Stop        []string

@@ -22,7 +22,7 @@ func TestFactory(t *testing.T) {
 	}
 
 	for _, test := range tests {
-		provider, err := adapters.NewProvider(test.provider, test.model, "", test.numPredict, "system")
+		provider, err := adapters.NewProvider(test.provider, test.model, "", test.numPredict, "system", "")
 		if err != test.err {
 			t.Fatalf("expected error %v, got %v", test.err, err)
 		}
