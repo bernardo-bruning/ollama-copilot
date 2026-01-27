@@ -17,6 +17,7 @@ func TestFactory(t *testing.T) {
 	}{
 		{"ollama", "llama2", 128, "Ollama", nil},
 		{"openrouter", "openrouter-gpt-3.5-turbo", 256, "OpenRouter", nil},
+		{"deepseek", "deepseek-coder", 256, "DeepSeek", nil},
 		{"unknown", "", 256, "", adapters.ErrUnknownProvider},
 	}
 

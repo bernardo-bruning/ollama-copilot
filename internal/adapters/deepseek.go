@@ -23,16 +23,20 @@ type DeepSeekResponse struct {
 }
 
 type DeepSeek struct {
-	client HttpClient
+	client    HttpClient
+	model     string
+	maxTokens int
 }
 
 // Completion implements [ports.Provider].
 func (d *DeepSeek) Completion(ctx context.Context, req ports.CompletionRequest, callback func(resp ports.CompletionResponse) error) error {
 	var deepSeekResponse DeepSeekResponse
 	deepSeekRequest := DeepSeekRequest{
+		Model:       d.model,
 		Prompt:      req.Prompt,
 		Temperature: req.Temperature,
 		TopP:        req.TopP,
+		MaxTokens:   d.maxTokens,
 	}
 
 	err := d.client.Post("/beta/completions", deepSeekRequest, &deepSeekResponse)
@@ -46,6 +50,10 @@ func (d *DeepSeek) Completion(ctx context.Context, req ports.CompletionRequest, 
 	})
 }
 
-func NewDeepSeek(httpClient HttpClient) ports.Provider {
-	return &DeepSeek{httpClient}
+func NewDeepSeek(model string, maxTokens int, httpClient HttpClient) ports.Provider {
+	return &DeepSeek{
+		client:    httpClient,
+		model:     model,
+		maxTokens: maxTokens,
+	}
 }

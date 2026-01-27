@@ -25,6 +25,14 @@ To use the default model expected by `ollama-copilot`:
 ollama pull codellama:code
 ```
 
+### DeepSeek
+
+To use DeepSeek:
+
+```bash
+ollama-copilot -provider deepseek -token YOUR_DEEPSEEK_API_KEY -model deepseek-coder
+```
+
 ### ollama-copilot
 
 ```bash

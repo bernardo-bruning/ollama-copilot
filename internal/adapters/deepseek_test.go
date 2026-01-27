@@ -32,10 +32,10 @@ func NewFakeHttpClient() *FakeHttpClient {
 	}
 }
 
-func Test(t *testing.T) {
+func TestDeepSeek(t *testing.T) {
 	t.Run("send to callback", func(t *testing.T) {
 		httpClient := NewFakeHttpClient()
-		deepSeek := adapters.NewDeepSeek(httpClient)
+		deepSeek := adapters.NewDeepSeek("deepseek-coder", 100, httpClient)
 		executed := false
 		req := ports.CompletionRequest{
 			Prompt:      "func ",
@@ -60,7 +60,7 @@ func Test(t *testing.T) {
 
 	t.Run("send request to deepseek", func(t *testing.T) {
 		httpClient := NewFakeHttpClient()
-		deepSeek := adapters.NewDeepSeek(httpClient)
+		deepSeek := adapters.NewDeepSeek("deepseek-coder", 100, httpClient)
 		req := ports.CompletionRequest{
 			Prompt:      "func ",
 			Temperature: 1.0,
