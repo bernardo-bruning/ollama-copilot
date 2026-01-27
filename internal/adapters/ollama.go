@@ -52,7 +52,7 @@ func (o *Ollama) Completion(ctx context.Context, req ports.CompletionRequest, ca
 		Options: map[string]interface{}{
 			"temperature": req.Temperature,
 			"top_p":       req.TopP,
-			"stop":        req.Stop,
+			"stop":        append(req.Stop, "<EOT>"),
 			"num_predict": o.numPredict,
 		},
 	}
