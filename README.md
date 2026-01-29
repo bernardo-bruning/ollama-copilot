@@ -33,6 +33,14 @@ To use DeepSeek:
 ollama-copilot -provider deepseek -token YOUR_DEEPSEEK_API_KEY -model deepseek-coder
 ```
 
+### Mistral
+
+To use Mistral:
+
+```bash
+ollama-copilot -provider mistral -token YOUR_MISTRAL_API_KEY -model codestral-latest
+```
+
 ### ollama-copilot
 
 ```bash

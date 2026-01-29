@@ -11,13 +11,13 @@ import (
 	"github.com/bernardo-bruning/ollama-copilot/internal/ports"
 )
 
-func TestOpenRouter(t *testing.T) {
+func TestMistral(t *testing.T) {
 	tests := []struct {
 		name             string
 		expectedResponse string
 		expectedText     string
 		expectedPrompt   string
-		expectedSystem   string
+		expectedSuffix   string
 		statusCode       int
 		expectError      bool
 	}{
@@ -27,15 +27,29 @@ func TestOpenRouter(t *testing.T) {
 {
   "choices": [
     {
-      "message": {
-        "content": "The theory of relativity, developed by Albert Einstein, explains how space and time are linked for objects moving at a consistent speed in a straight line. It shows that time can slow down or speed up depending on how fast you move relative to something else."
-      }
+      "text": "The theory of relativity, developed by Albert Einstein..."
     }
   ]
 }`,
-			expectedText:   "The theory of relativity, developed by Albert Einstein, explains how space and time are linked for objects moving at a consistent speed in a straight line. It shows that time can slow down or speed up depending on how fast you move relative to something else.",
+			expectedText:   "The theory of relativity, developed by Albert Einstein...",
 			expectedPrompt: "Explain the theory of relativity in simple terms.",
-			expectedSystem: "You are a helpful assistant.",
+			expectedSuffix: "",
+			statusCode:     http.StatusOK,
+			expectError:    false,
+		},
+		{
+			name: "Successful completion with suffix",
+			expectedResponse: `
+{
+  "choices": [
+    {
+      "text": "code completion result"
+    }
+  ]
+}`,
+			expectedText:   "code completion result",
+			expectedPrompt: "func main() {",
+			expectedSuffix: "}",
 			statusCode:     http.StatusOK,
 			expectError:    false,
 		},
@@ -44,7 +58,7 @@ func TestOpenRouter(t *testing.T) {
 			expectedResponse: `{"choices": []}`,
 			expectedText:     "",
 			expectedPrompt:   "Hello",
-			expectedSystem:   "",
+			expectedSuffix:   "",
 			statusCode:       http.StatusOK,
 			expectError:      false,
 		},
@@ -53,7 +67,7 @@ func TestOpenRouter(t *testing.T) {
 			expectedResponse: `{"error": "Internal Server Error"}`,
 			expectedText:     "",
 			expectedPrompt:   "Hello",
-			expectedSystem:   "",
+			expectedSuffix:   "",
 			statusCode:       http.StatusInternalServerError,
 			expectError:      true,
 		},
@@ -62,37 +76,28 @@ func TestOpenRouter(t *testing.T) {
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
 			server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-				if r.URL.Path != "/chat/completions" {
-					t.Errorf("expected path /chat/completions, got %s", r.URL.Path)
+				if r.URL.Path != "/fim/completions" {
+					t.Errorf("expected path /fim/completions, got %s", r.URL.Path)
 				}
 				if r.Method != "POST" {
 					t.Errorf("expected method POST, got %s", r.Method)
 				}
 
 				var reqBody struct {
-					Messages []struct {
-						Role    string `json:"role"`
-						Content string `json:"content"`
-					}
-					Model string `json:"model"`
+					Prompt string `json:"prompt"`
+					Suffix string `json:"suffix"`
+					Model  string `json:"model"`
 				}
 				err := json.NewDecoder(r.Body).Decode(&reqBody)
 				if err != nil {
 					t.Fatalf("failed to decode request body: %v", err)
 				}
 
-				foundPrompt := false
-				for _, msg := range reqBody.Messages {
-					if msg.Role == "user" && msg.Content == tt.expectedPrompt {
-						foundPrompt = true
-					}
-					if msg.Role == "system" && msg.Content != tt.expectedSystem {
-						t.Errorf("expected system content '%s', got '%s'", tt.expectedSystem, msg.Content)
-					}
+				if reqBody.Prompt != tt.expectedPrompt {
+					t.Errorf("expected prompt '%s', got '%s'", tt.expectedPrompt, reqBody.Prompt)
 				}
-
-				if !foundPrompt {
-					t.Errorf("expected prompt '%s' not found in messages", tt.expectedPrompt)
+				if reqBody.Suffix != tt.expectedSuffix {
+					t.Errorf("expected suffix '%s', got '%s'", tt.expectedSuffix, reqBody.Suffix)
 				}
 
 				w.Header().Set("Content-Type", "application/json")
@@ -101,14 +106,16 @@ func TestOpenRouter(t *testing.T) {
 			}))
 			defer server.Close()
 
-			openRouter := adapters.NewOpenRouterWithBaseURL("<token>", "openrouter-gpt-3.5-turbo", server.URL, tt.expectedSystem, "")
+			// System prompt is ignored in FIM but passed in constructor
+			mistral := adapters.NewMistralWithBaseURL("<token>", "mistral-tiny", server.URL, "ignored-system")
 
 			req := ports.CompletionRequest{
-				Prompt: tt.expectedPrompt,
+				Prompt: tt.expectedPrompt, // Use Prompt
+				Suffix:    tt.expectedSuffix,
 			}
 
 			var result string
-			err := openRouter.Completion(context.Background(), req, func(resp ports.CompletionResponse) error {
+			err := mistral.Completion(context.Background(), req, func(resp ports.CompletionResponse) error {
 				result = resp.Response
 				return nil
 			})

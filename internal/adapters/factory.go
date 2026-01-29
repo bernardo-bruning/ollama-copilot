@@ -17,7 +17,8 @@ func NewProvider(provider string, model string, token string, numPredict int, sy
 	case "deepseek":
 		client := NewDefaultHttpClient("https://api.deepseek.com", token)
 		return NewDeepSeek(model, numPredict, client), nil
-	// TODO #41:30 min create provider Mistral
+	case "mistral":
+		return NewMistral(token, model, system), nil
 	default:
 		return nil, ErrUnknownProvider
 	}
