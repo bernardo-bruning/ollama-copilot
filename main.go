@@ -19,6 +19,7 @@ var (
 	numPredict   = flag.Int("num-predict", 50, "Number of predictions to return")
 	templateStr  = flag.String("template", "<PRE> {{.Prefix}} <SUF> {{.Suffix}} <MID>", "Fill-in-middle template to apply in prompt")
 	system       = flag.String("system", "You are a helpful coding assistant. Respond with autocomplete code only, without explanations or comments.", "The system parameter is use to provide system-level instructions to guide the model's behavior throughout the conversation")
+	debug        = flag.Bool("debug", false, "Enable debug logging")
 )
 
 // main is the entrypoint for the program.
@@ -37,8 +38,8 @@ func main() {
 		System:      *system,
 	}
 
-	go internal.Proxy(*proxyPortSSL, *portSSL)
-	go internal.Proxy(*proxyPort, *port)
+	go internal.Proxy(*proxyPortSSL, *portSSL, *debug)
+	go internal.Proxy(*proxyPort, *port, *debug)
 
 	go server.Serve()
 	server.ServeTLS()

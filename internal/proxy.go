@@ -12,7 +12,7 @@ import (
 	"time"
 )
 
-func Proxy(port string, forward string) {
+func Proxy(port string, forward string, debug bool) {
 	listener, err := net.Listen("tcp", port)
 	if err != nil {
 		log.Fatalf("failed to listen: %v", err)
@@ -21,10 +21,13 @@ func Proxy(port string, forward string) {
 	defer listener.Close()
 
 	for {
-		//TODO #33:30min We need introduce logs here to discovery the local address and remote address and control logs using debugging flags
 		conn, err := listener.Accept()
 		if err != nil {
 			log.Fatalf("failed to accept: %v", err)
+		}
+
+		if debug {
+			log.Printf("accepted connection from %s to %s", conn.RemoteAddr(), conn.LocalAddr())
 		}
 
 		go handle(conn, forward)
