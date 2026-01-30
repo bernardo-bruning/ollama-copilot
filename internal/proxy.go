@@ -21,6 +21,7 @@ func Proxy(port string, forward string) {
 	defer listener.Close()
 
 	for {
+		//TODO #33:30min We need introduce logs here to discovery the local address and remote address and control logs using debugging flags
 		conn, err := listener.Accept()
 		if err != nil {
 			log.Fatalf("failed to accept: %v", err)
