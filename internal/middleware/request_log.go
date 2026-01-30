@@ -20,7 +20,7 @@ func LogMiddleware(next http.Handler) http.Handler {
 	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		start := time.Now()
 		record := ResponseWriterLogged{w, http.StatusOK}
-		log.Printf("request: %s %s", r.Method, r.URL.Path)
+		log.Printf("request: %s %s %s", r.Method, r.URL.Path, r.RemoteAddr)
 		next.ServeHTTP(&record, r)
 		log.Printf("response: %s %s %d %s", r.Method, r.URL.Path, record.Status, time.Since(start))
 	})
