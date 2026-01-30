@@ -72,6 +72,7 @@ func (c *CompletionHandler) ServeHTTP(w http.ResponseWriter, r *http.Request) {
 
 	req := CompletionRequest{}
 	if err := json.NewDecoder(r.Body).Decode(&req); err != nil {
+		// TODO #38:30min Change to log and test the issue to fix
 		log.Fatalf("error decode: %s", err.Error())
 		w.WriteHeader(http.StatusBadRequest)
 		return

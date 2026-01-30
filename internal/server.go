@@ -8,6 +8,7 @@ import (
 	"crypto/x509/pkix"
 	"log"
 	"math/big"
+	"net"
 	"net/http"
 	"time"
 
@@ -55,6 +56,7 @@ func (s *Server) ServeTLS() {
 		server.TLSConfig.Certificates = append(server.TLSConfig.Certificates, selfAssignCertificate)
 	}
 
+	// Runnin with TLS
 	err := server.ListenAndServeTLS(s.Certificate, s.Key)
 	if err != nil {
 		log.Fatalf("error listening: %s", err.Error())
@@ -73,9 +75,11 @@ func selfAssignCertificate() (tls.Certificate, error) {
 		Subject: pkix.Name{
 			CommonName: "localhost",
 		},
-		NotBefore: time.Now(),
-		NotAfter:  time.Now().AddDate(30, 0, 0),
-		KeyUsage:  x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
+		NotBefore:   time.Now(),
+		NotAfter:    time.Now().AddDate(30, 0, 0),
+		DNSNames:    []string{"localhost"},
+		IPAddresses: []net.IP{net.ParseIP("127.0.0.1"), net.ParseIP("::1")},
+		KeyUsage:    x509.KeyUsageKeyEncipherment | x509.KeyUsageDigitalSignature | x509.KeyUsageCertSign,
 		ExtKeyUsage: []x509.ExtKeyUsage{
 			x509.ExtKeyUsageServerAuth,
 		},
