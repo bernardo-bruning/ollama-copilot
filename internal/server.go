@@ -107,6 +107,7 @@ func (s *Server) mux() http.Handler {
 	completionHandler := handlers.NewCompletionHandler(provider)
 
 	mux.Handle("/health", handlers.NewHealthHandler())
+	mux.Handle("/copilot_internal/user", handlers.NewUserHandler())
 	mux.Handle("/copilot_internal/v2/token", handlers.NewTokenHandler())
 	mux.Handle("/v1/engines/copilot-codex/completions", completionHandler)
 	mux.Handle("/v1/engines/chat-control/completions", completionHandler)
