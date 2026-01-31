@@ -1,0 +1,24 @@
+[Unit]
+Description=Ollama Copilot Proxy
+After=network.target ollama.service
+
+[Service]
+Type=simple
+# Replace /usr/local/bin/ollama-copilot with the actual path to the binary
+# If you installed it with go install, it might be at /home/<your_user>/go/bin/ollama-copilot
+ExecStart=/usr/local/bin/ollama-copilot
+Restart=on-failure
+RestartSec=5
+
+# It is recommended to run as a specific user.
+# User=your_username
+# Group=your_group
+
+# Environment variables
+# Environment="OLLAMA_HOST=http://127.0.0.1:11434"
+
+# Optional: Add flags here if needed
+# ExecStart=/usr/local/bin/ollama-copilot -model codellama:code
+
+[Install]
+WantedBy=multi-user.target
