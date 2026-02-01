@@ -57,7 +57,7 @@ func TestOllamaCompletionAddsEOT(t *testing.T) {
 
 	// Create the Ollama adapter
 	// Note: NewOllama calls api.ClientFromEnvironment() which reads OLLAMA_HOST
-	adapter, err := NewOllama("test-model", 100, "test-system", "{{.Prompt}}")
+	adapter, err := NewOllama("test-model", 100, "test-system")
 	if err != nil {
 		t.Fatalf("NewOllama failed: %v", err)
 	}

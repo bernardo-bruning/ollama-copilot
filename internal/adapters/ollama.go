@@ -1,9 +1,7 @@
 package adapters
 
 import (
-	"bytes"
 	"context"
-	"text/template"
 
 	"github.com/bernardo-bruning/ollama-copilot/internal/ports"
 	"github.com/ollama/ollama/api"
@@ -14,17 +12,15 @@ type Ollama struct {
 	numPredict int
 	system     string
 	client     *api.Client
-	template   *template.Template
 }
 
 // NewOllama creates a new Ollama adapter
-func NewOllama(model string, numPredict int, system string, templateStr string) (ports.Provider, error) {
+func NewOllama(model string, numPredict int, system string) (ports.Provider, error) {
 	client, err := api.ClientFromEnvironment()
 	if err != nil {
 		return nil, err
 	}
 
-	templ, err := template.New("prompt").Parse(templateStr)
 	if err != nil {
 		return nil, err
 	}
@@ -34,20 +30,15 @@ func NewOllama(model string, numPredict int, system string, templateStr string) 
 		numPredict: numPredict,
 		client:     client,
 		system:     system,
-		template:   templ,
 	}, nil
 }
 
 // Completion is the completion handler for Ollama
 func (o *Ollama) Completion(ctx context.Context, req ports.CompletionRequest, callback func(resp ports.CompletionResponse) error) error {
-	prompt, err := o.generatePrompt(req)
-	if err != nil {
-		return err
-	}
-
 	generate := api.GenerateRequest{
 		Model:  o.model,
-		Prompt: prompt,
+		Prompt: req.Prompt,
+		Suffix: req.Suffix,
 		System: o.system,
 		Options: map[string]interface{}{
 			"temperature": req.Temperature,
@@ -63,18 +54,4 @@ func (o *Ollama) Completion(ctx context.Context, req ports.CompletionRequest, ca
 			Done:     resp.Done,
 		})
 	})
-}
-
-func (o *Ollama) generatePrompt(req ports.CompletionRequest) (string, error) {
-	var buf = new(bytes.Buffer)
-	err := o.template.Execute(buf, map[string]string{
-		"Prefix":     req.Prompt,
-		"Suffix":     req.Suffix,
-		"Prompt":     req.Prompt,
-		"Prediction": req.Prompt,
-	})
-	if err != nil {
-		return "", err
-	}
-	return buf.String(), nil
 }
