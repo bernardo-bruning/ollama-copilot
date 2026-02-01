@@ -21,10 +21,6 @@ func NewOllama(model string, numPredict int, system string) (ports.Provider, err
 		return nil, err
 	}
 
-	if err != nil {
-		return nil, err
-	}
-
 	return &Ollama{
 		model:      model,
 		numPredict: numPredict,
