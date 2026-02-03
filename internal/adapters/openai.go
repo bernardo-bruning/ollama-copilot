@@ -34,7 +34,7 @@ type openAIRequest struct {
 	Model     string `json:"model"`
 	MaxTokens int    `json:"max_tokens"`
 	Suffix    string `json:"suffix"`
-	// TODO: add temperature and top_p
+	// TODO #47:30min add temperature and top_p
 }
 
 func newOpenAIRequest(req ports.CompletionRequest) *openAIRequest {
