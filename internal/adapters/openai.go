@@ -7,17 +7,16 @@ import (
 )
 
 type OpenAI struct {
-	token     string
 	model     string
 	maxTokens int
+	client    HttpClient
 }
 
 // Completion implements [ports.Provider].
 func (o *OpenAI) Completion(ctx context.Context, req ports.CompletionRequest, callback func(resp ports.CompletionResponse) error) error {
-	client := NewHttpClient("https://api.openai.com/v1", map[string]string{"Authorization": "Bearer " + o.token})
-	openAIRequest := newOpenAIRequest(req)
-	openAIResponse := newOpenAIResponse()
-	err := client.Post("v1/completions", openAIRequest, &openAIResponse)
+	openAIRequest := NewOpenAIRequest(req)
+	openAIResponse := NewOpenAIResponse()
+	err := o.client.Post("v1/completions", openAIRequest, openAIResponse)
 	if err != nil {
 		return err
 	}
@@ -26,10 +25,15 @@ func (o *OpenAI) Completion(ctx context.Context, req ports.CompletionRequest, ca
 }
 
 func NewOpenAI(token string, model string, maxTokens int) ports.Provider {
-	return &OpenAI{token, model, maxTokens}
+	client := NewDefaultHttpClient("https://api.openai.com", token)
+	return &OpenAI{model, maxTokens, client}
 }
 
-type openAIRequest struct {
+func NewOpenAIWithClient(model string, maxTokens int, client HttpClient) ports.Provider {
+	return &OpenAI{model, maxTokens, client}
+}
+
+type OpenAIRequest struct {
 	Prompt    string `json:"prompt"`
 	Model     string `json:"model"`
 	MaxTokens int    `json:"max_tokens"`
@@ -37,14 +41,14 @@ type openAIRequest struct {
 	// TODO #47:30min add temperature and top_p
 }
 
-func newOpenAIRequest(req ports.CompletionRequest) *openAIRequest {
-	return &openAIRequest{
+func NewOpenAIRequest(req ports.CompletionRequest) *OpenAIRequest {
+	return &OpenAIRequest{
 		Prompt: req.Prompt,
 		Suffix: req.Suffix,
 	}
 }
 
-type openAIResponse struct {
+type OpenAIResponse struct {
 	Id      string           `json:"id"`
 	Created int64            `json:"created"`
 	Choices []ChoiceResponse `json:"choices"`
@@ -56,18 +60,18 @@ type ChoiceResponse struct {
 	FinishReason string `json:"finish_reason"`
 }
 
-func newOpenAIResponse() *openAIResponse {
-	return &openAIResponse{}
+func NewOpenAIResponse() *OpenAIResponse {
+	return &OpenAIResponse{}
 }
 
-func (o *openAIResponse) ToPorts() ports.CompletionResponse {
+func (o *OpenAIResponse) ToPorts() ports.CompletionResponse {
 	return ports.CompletionResponse{
 		Response: o.GetText(),
 		Done:     true,
 	}
 }
 
-func (o *openAIResponse) GetText() string {
+func (o *OpenAIResponse) GetText() string {
 	if len(o.Choices) == 0 {
 		return ""
 	}

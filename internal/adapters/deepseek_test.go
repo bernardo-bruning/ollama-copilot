@@ -8,13 +8,13 @@ import (
 	"github.com/bernardo-bruning/ollama-copilot/internal/ports"
 )
 
-type FakeHttpClient struct {
+type FakeDeepSeekHttpClient struct {
 	Returns     adapters.DeepSeekResponse
 	LastRequest any
 }
 
 // Post implements [HttpClient].
-func (f *FakeHttpClient) Post(url string, req any, resp any) error {
+func (f *FakeDeepSeekHttpClient) Post(url string, req any, resp any) error {
 	f.LastRequest = req
 	if r, ok := resp.(*adapters.DeepSeekResponse); ok {
 		r.Choices.Text = f.Returns.Choices.Text
@@ -22,11 +22,11 @@ func (f *FakeHttpClient) Post(url string, req any, resp any) error {
 	return nil
 }
 
-func NewFakeHttpClient() *FakeHttpClient {
-	return &FakeHttpClient{
+func NewFakeDeepSeekHttpClient() *FakeDeepSeekHttpClient {
+	return &FakeDeepSeekHttpClient{
 		Returns: adapters.DeepSeekResponse{
 			Choices: struct {
-				Text string "json:\"text\""
+				Text string `json:"text"`
 			}{
 				Text: "func test():",
 			},
@@ -36,7 +36,7 @@ func NewFakeHttpClient() *FakeHttpClient {
 
 func TestDeepSeek(t *testing.T) {
 	t.Run("send to callback", func(t *testing.T) {
-		httpClient := NewFakeHttpClient()
+		httpClient := NewFakeDeepSeekHttpClient()
 		deepSeek := adapters.NewDeepSeek("deepseek-coder", 100, httpClient)
 		executed := false
 		req := ports.CompletionRequest{
@@ -71,7 +71,7 @@ func TestDeepSeek(t *testing.T) {
 	})
 
 	t.Run("send request to deepseek", func(t *testing.T) {
-		httpClient := NewFakeHttpClient()
+		httpClient := NewFakeDeepSeekHttpClient()
 		deepSeek := adapters.NewDeepSeek("deepseek-coder", 100, httpClient)
 		req := ports.CompletionRequest{
 			Prompt:      "func ",
