@@ -19,6 +19,7 @@ func TestFactory(t *testing.T) {
 		{"openrouter", "openrouter-gpt-3.5-turbo", 256, "OpenRouter", nil},
 		{"deepseek", "deepseek-coder", 256, "DeepSeek", nil},
 		{"mistral", "mistral-tiny", 256, "Mistral", nil},
+		{"openai", "o1", 256, "OpenAI", nil},
 		{"unknown", "", 256, "", adapters.ErrUnknownProvider},
 	}
 
