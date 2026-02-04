@@ -14,9 +14,9 @@ type OpenAI struct {
 
 // Completion implements [ports.Provider].
 func (o *OpenAI) Completion(ctx context.Context, req ports.CompletionRequest, callback func(resp ports.CompletionResponse) error) error {
-	openAIRequest := NewOpenAIRequest(req)
+	openAIRequest := NewOpenAIRequest(o.model, req)
 	openAIResponse := NewOpenAIResponse()
-	err := o.client.Post("v1/completions", openAIRequest, openAIResponse)
+	err := o.client.Post("/v1/completions", openAIRequest, openAIResponse)
 	if err != nil {
 		return err
 	}
@@ -34,15 +34,17 @@ func NewOpenAIWithClient(model string, maxTokens int, client HttpClient) ports.P
 }
 
 type OpenAIRequest struct {
-	Prompt    string `json:"prompt"`
-	Model     string `json:"model"`
-	MaxTokens int    `json:"max_tokens"`
-	Suffix    string `json:"suffix"`
+	Prompt string `json:"prompt"`
+	Model  string `json:"model"`
+	// TODO #38:30min need fix max token
+	// MaxTokens int    `json:"max_tokens"`
+	Suffix string `json:"suffix"`
 	// TODO #47:30min add temperature and top_p
 }
 
-func NewOpenAIRequest(req ports.CompletionRequest) *OpenAIRequest {
+func NewOpenAIRequest(model string, req ports.CompletionRequest) *OpenAIRequest {
 	return &OpenAIRequest{
+		Model:  model,
 		Prompt: req.Prompt,
 		Suffix: req.Suffix,
 	}

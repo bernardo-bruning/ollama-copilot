@@ -20,8 +20,7 @@ func NewProvider(provider string, model string, token string, numPredict int, sy
 	case "mistral":
 		return NewMistral(token, model, system), nil
 	case "openai":
-		// TODO #9 Add OpenAI support
-		panic("not implemented")
+		return NewOpenAI(token, model, numPredict), nil
 	default:
 		return nil, ErrUnknownProvider
 	}

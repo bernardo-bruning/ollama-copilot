@@ -36,14 +36,14 @@ func NewOpenAIFakeHttpClient() *FakeOpenAIHttpClient {
 
 func Test(t *testing.T) {
 	t.Run("test request", func(t *testing.T) {
-		req := adapters.NewOpenAIRequest(ports.CompletionRequest{
+		req := adapters.NewOpenAIRequest("my-model", ports.CompletionRequest{
 			Prompt: "hello ",
 			Suffix: "!",
 		})
 
 		assert.Equal(t, req, &adapters.OpenAIRequest{
 			Prompt:    "hello ",
-			Model:     "",
+			Model:     "my-model",
 			MaxTokens: 0,
 			Suffix:    "!",
 		})
