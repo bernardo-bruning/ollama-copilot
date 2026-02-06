@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/http"
 )
 
@@ -47,7 +48,8 @@ func (c *DefaultHttpClient) Post(path string, req any, resp any) error {
 	defer httpResp.Body.Close()
 
 	if httpResp.StatusCode != http.StatusOK {
-		return fmt.Errorf("unexpected status code: %d", httpResp.StatusCode)
+		resp, _ := io.ReadAll(httpReq.Body)
+		return fmt.Errorf("unexpected status code: %d: %s", httpResp.StatusCode, resp)
 	}
 
 	if resp == nil {
@@ -56,3 +58,4 @@ func (c *DefaultHttpClient) Post(path string, req any, resp any) error {
 
 	return json.NewDecoder(httpResp.Body).Decode(resp)
 }
+

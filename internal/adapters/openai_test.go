@@ -36,16 +36,16 @@ func NewOpenAIFakeHttpClient() *FakeOpenAIHttpClient {
 
 func Test(t *testing.T) {
 	t.Run("test request", func(t *testing.T) {
-		req := adapters.NewOpenAIRequest("my-model", ports.CompletionRequest{
+		req := adapters.NewOpenAIRequest("gpt-3.5-turbo-instruct", 20, ports.CompletionRequest{
 			Prompt: "hello ",
 			Suffix: "!",
 		})
 
 		assert.Equal(t, req, &adapters.OpenAIRequest{
 			Prompt:    "hello ",
-			Model:     "my-model",
-			MaxTokens: 0,
-			Suffix:    "!",
+			Model:     "gpt-3.5-turbo-instruct",
+			MaxTokens: 20,
+			Suffix:    func(s string) *string { return &s }("!"),
 		})
 	})
 
@@ -56,6 +56,15 @@ func Test(t *testing.T) {
 			Response: "hello",
 			Done:     true,
 		})
+	})
+
+	t.Run("test not apply suffix when model is not gpt-3.5-turbo-instruct", func(t *testing.T) {
+		req := adapters.NewOpenAIRequest("gpt-4o-mini-2024-07-18", 20, ports.CompletionRequest{
+			Prompt: "hello ",
+			Suffix: "!",
+		})
+
+		assert.Nil(t, req.Suffix)
 	})
 
 	t.Run("test provider", func(t *testing.T) {
@@ -72,4 +81,5 @@ func Test(t *testing.T) {
 
 		assert.NoError(t, err)
 	})
+
 }

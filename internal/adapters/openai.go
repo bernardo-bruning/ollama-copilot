@@ -14,7 +14,7 @@ type OpenAI struct {
 
 // Completion implements [ports.Provider].
 func (o *OpenAI) Completion(ctx context.Context, req ports.CompletionRequest, callback func(resp ports.CompletionResponse) error) error {
-	openAIRequest := NewOpenAIRequest(o.model, req)
+	openAIRequest := NewOpenAIRequest(o.model, o.maxTokens, req)
 	openAIResponse := NewOpenAIResponse()
 	err := o.client.Post("/v1/completions", openAIRequest, openAIResponse)
 	if err != nil {
@@ -36,17 +36,23 @@ func NewOpenAIWithClient(model string, maxTokens int, client HttpClient) ports.P
 type OpenAIRequest struct {
 	Prompt string `json:"prompt"`
 	Model  string `json:"model"`
-	// TODO #38:30min need fix max token
-	// MaxTokens int    `json:"max_tokens"`
-	Suffix string `json:"suffix"`
+	MaxTokens int    `json:"max_tokens"`
+	Suffix *string `json:"suffix"`
 	// TODO #47:30min add temperature and top_p
 }
 
-func NewOpenAIRequest(model string, req ports.CompletionRequest) *OpenAIRequest {
+// NewOpenAIRequest returns a request object for the provider.
+func NewOpenAIRequest(model string, maxTokens int, req ports.CompletionRequest) *OpenAIRequest {
+	suffix := &req.Suffix
+	if model != "gpt-3.5-turbo-instruct" {
+		suffix = nil
+	}
+
 	return &OpenAIRequest{
 		Model:  model,
+		MaxTokens: maxTokens,
 		Prompt: req.Prompt,
-		Suffix: req.Suffix,
+		Suffix: suffix,
 	}
 }
 
