@@ -33,12 +33,13 @@ func NewOpenAIWithClient(model string, maxTokens int, client HttpClient) ports.P
 	return &OpenAI{model, maxTokens, client}
 }
 
+// OpenAIRequest is the serializer for the provider request.
 type OpenAIRequest struct {
-	Prompt string `json:"prompt"`
-	Model  string `json:"model"`
-	MaxTokens int    `json:"max_tokens"`
-	Suffix *string `json:"suffix"`
-	// TODO #47:30min add temperature and top_p
+	Prompt    string  `json:"prompt"`
+	Model     string  `json:"model"`
+	MaxTokens int     `json:"max_tokens"`
+	Suffix    *string `json:"suffix"`
+	TopP      int     `json:"top_p"`
 }
 
 // NewOpenAIRequest returns a request object for the provider.
@@ -49,10 +50,11 @@ func NewOpenAIRequest(model string, maxTokens int, req ports.CompletionRequest) 
 	}
 
 	return &OpenAIRequest{
-		Model:  model,
+		Model:     model,
 		MaxTokens: maxTokens,
-		Prompt: req.Prompt,
-		Suffix: suffix,
+		Prompt:    req.Prompt,
+		Suffix:    suffix,
+		TopP:      req.TopP,
 	}
 }
 
