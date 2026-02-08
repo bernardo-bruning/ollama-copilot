@@ -69,19 +69,9 @@ OLLAMA_HOST="http://192.168.133.7:11434" ollama-copilot
 
 To run `ollama-copilot` as a systemd service:
 
-1. Edit `ollama-copilot.service` to match your environment (User, ExecStart path, etc.).
-2. Copy the file to `/etc/systemd/system/`:
-    ```bash
-    sudo cp ollama-copilot.service /etc/systemd/system/
-    ```
-3. Reload the systemd daemon:
-    ```bash
-    sudo systemctl daemon-reload
-    ```
-4. Enable and start the service:
-    ```bash
-    sudo systemctl enable --now ollama-copilot
-    ```
+```
+./install.sh
+```
 
 ## Configuration
 
