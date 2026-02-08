@@ -15,4 +15,6 @@ then
   systemctl --user start ollama-copilot.service
 fi
 
-echo $INSTALL_SYSTEMD
+# TODO #46:30min introduce auto config into nvim.
+# TODO #46:30min introduce auto config into vscode.
+# TODO #46:30min introduce auto config into zed.
