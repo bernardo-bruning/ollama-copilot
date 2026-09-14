@@ -25,6 +25,19 @@ To use the default model expected by `ollama-copilot`:
 ollama pull codellama:code
 ```
 
+### llmman
+
+[llmman](https://github.com/llmmanorg/llmman) is a local model runner that serves the Ollama API on port `17434`:
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/llmmanorg/llmman/main/install.sh | sh
+llmman serve
+llmman pull hf.co/unsloth/Qwen3.5-0.8B-GGUF
+ollama-copilot -provider llmman -model hf.co/unsloth/Qwen3.5-0.8B-GGUF
+```
+
+If llmman is hosted elsewhere, set `LLMMAN_HOST="http://192.168.133.7:17434"`.
+
 ### DeepSeek
 
 To use DeepSeek:
@@ -92,7 +105,7 @@ You can configure the server using command-line flags:
 | `-proxy-port-ssl` | `:11435` | HTTPS proxy port |
 | `-cert` | | Certificate file path (`*.crt`) for custom TLS |
 | `-key` | | Key file path (`*.key`) for custom TLS |
-| `-provider` | `ollama` | Provider to run LLM |
+| `-provider` | `ollama` | Provider to run LLM (`ollama`, `llmman`, `openrouter`, `deepseek`, `mistral`, `openai`) |
 | `-token` | `TOKEN` | Token to pass for provider |
 | `-model` | `codellama:code` | LLM model to use |
 | `-num-predict` | `250` | Number of tokens to predict (recommended `25` for copilot) |

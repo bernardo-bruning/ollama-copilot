@@ -12,6 +12,8 @@ func NewProvider(provider string, model string, token string, numPredict int, nu
 	switch provider {
 	case "ollama":
 		return NewOllama(model, token, numPredict, numCtx, system)
+	case "llmman":
+		return NewLlmman(model, token, numPredict, numCtx, system)
 	case "openrouter":
 		return NewOpenRouter(token, model, system, templateStr), nil
 	case "deepseek":

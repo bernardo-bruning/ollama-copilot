@@ -113,3 +113,38 @@ func TestOllamaCompletionWithToken(t *testing.T) {
 		t.Fatalf("Completion failed: %v", err)
 	}
 }
+
+func TestLlmmanUsesLlmmanHost(t *testing.T) {
+	// Start a mock server
+	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
+		if r.URL.Path != "/api/generate" {
+			t.Errorf("Expected path /api/generate, got %s", r.URL.Path)
+		}
+
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		w.Write([]byte(`{"response": "ok", "done": true}`))
+	}))
+	defer server.Close()
+
+	// llmman must honour LLMMAN_HOST and ignore OLLAMA_HOST
+	t.Setenv("OLLAMA_HOST", "http://127.0.0.1:1")
+	t.Setenv("LLMMAN_HOST", server.URL)
+
+	adapter, err := NewLlmman("test-model", "", 100, 0, "test-system")
+	if err != nil {
+		t.Fatalf("NewLlmman failed: %v", err)
+	}
+
+	req := ports.CompletionRequest{
+		Prompt: "test prompt",
+	}
+
+	err = adapter.Completion(context.Background(), req, func(resp ports.CompletionResponse) error {
+		return nil
+	})
+
+	if err != nil {
+		t.Fatalf("Completion failed: %v", err)
+	}
+}

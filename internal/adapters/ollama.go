@@ -33,9 +33,21 @@ func (t *authTransport) RoundTrip(req *http.Request) (*http.Response, error) {
 
 // NewOllama creates a new Ollama adapter
 func NewOllama(model string, token string, numPredict int, numCtx int, system string) (ports.Provider, error) {
-	host := os.Getenv("OLLAMA_HOST")
+	return newOllamaAPI("OLLAMA_HOST", "http://127.0.0.1:11434", model, token, numPredict, numCtx, system)
+}
+
+// NewLlmman creates an adapter for llmman (https://github.com/llmmanorg/llmman),
+// a local model runner that serves the Ollama API on port 17434.
+func NewLlmman(model string, token string, numPredict int, numCtx int, system string) (ports.Provider, error) {
+	return newOllamaAPI("LLMMAN_HOST", "http://127.0.0.1:17434", model, token, numPredict, numCtx, system)
+}
+
+// newOllamaAPI creates an adapter for any server speaking the Ollama API,
+// reading the host from hostEnv and falling back to defaultHost.
+func newOllamaAPI(hostEnv string, defaultHost string, model string, token string, numPredict int, numCtx int, system string) (ports.Provider, error) {
+	host := os.Getenv(hostEnv)
 	if host == "" {
-		host = "http://127.0.0.1:11434"
+		host = defaultHost
 	}
 
 	if !strings.Contains(host, "://") {
