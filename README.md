@@ -54,6 +54,14 @@ To use Mistral:
 ollama-copilot -provider mistral -token YOUR_MISTRAL_API_KEY -model codestral-latest
 ```
 
+### Cheaper Inference
+
+[Cheaper Inference](https://cheaperinference.com) is an OpenAI-compatible LLM gateway:
+
+```bash
+ollama-copilot -provider cheaperinference -token YOUR_CHEAPER_INFERENCE_API_KEY -model gpt-5.4-mini
+```
+
 ### Automatic Installation & Configuration
 
 You can use the `install.sh` script to automate the build, installation, and configuration of `ollama-copilot` and your editors:
@@ -105,7 +113,7 @@ You can configure the server using command-line flags:
 | `-proxy-port-ssl` | `:11435` | HTTPS proxy port |
 | `-cert` | | Certificate file path (`*.crt`) for custom TLS |
 | `-key` | | Key file path (`*.key`) for custom TLS |
-| `-provider` | `ollama` | Provider to run LLM (`ollama`, `llmman`, `openrouter`, `deepseek`, `mistral`, `openai`) |
+| `-provider` | `ollama` | Provider to run LLM (`ollama`, `llmman`, `openrouter`, `cheaperinference`, `deepseek`, `mistral`, `openai`) |
 | `-token` | `TOKEN` | Token to pass for provider |
 | `-model` | `codellama:code` | LLM model to use |
 | `-num-predict` | `250` | Number of tokens to predict (recommended `25` for copilot) |

@@ -19,6 +19,7 @@ func TestFactory(t *testing.T) {
 		{"ollama", "llama2", 128, 0, "Ollama", nil},
 		{"llmman", "gemma4", 128, 0, "Ollama", nil},
 		{"openrouter", "openrouter-gpt-3.5-turbo", 256, 0, "OpenRouter", nil},
+		{"cheaperinference", "gpt-5.4-mini", 256, 0, "OpenRouter", nil},
 		{"deepseek", "deepseek-coder", 256, 0, "DeepSeek", nil},
 		{"mistral", "mistral-tiny", 256, 0, "Mistral", nil},
 		{"openai", "o1", 256, 0, "OpenAI", nil},

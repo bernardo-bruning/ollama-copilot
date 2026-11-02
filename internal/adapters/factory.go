@@ -16,6 +16,8 @@ func NewProvider(provider string, model string, token string, numPredict int, nu
 		return NewLlmman(model, token, numPredict, numCtx, system)
 	case "openrouter":
 		return NewOpenRouter(token, model, system, templateStr), nil
+	case "cheaperinference":
+		return NewCheaperInference(token, model, system, templateStr), nil
 	case "deepseek":
 		client := NewDefaultHttpClient("https://api.deepseek.com", token)
 		return NewDeepSeek(model, numPredict, client), nil

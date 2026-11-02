@@ -130,3 +130,12 @@ func TestOpenRouter(t *testing.T) {
 		})
 	}
 }
+
+func TestCheaperInferenceUsesCheaperInferenceBaseURL(t *testing.T) {
+	cheaperInference := adapters.NewCheaperInference("<token>", "gpt-5.4-mini", "system", "")
+
+	expected := "https://api.cheaperinference.com/v1"
+	if cheaperInference.BaseURL != expected {
+		t.Errorf("expected base URL %s, got %s", expected, cheaperInference.BaseURL)
+	}
+}
