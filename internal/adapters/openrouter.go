@@ -24,6 +24,12 @@ func NewOpenRouter(token string, model string, system string, templateStr string
 	return NewOpenRouterWithBaseURL(token, model, "https://openrouter.ai/api/v1", system, templateStr)
 }
 
+// NewCheaperInference creates an adapter for Cheaper Inference
+// (https://cheaperinference.com), an OpenAI-compatible LLM gateway.
+func NewCheaperInference(token string, model string, system string, templateStr string) *OpenRouter {
+	return NewOpenRouterWithBaseURL(token, model, "https://api.cheaperinference.com/v1", system, templateStr)
+}
+
 func NewOpenRouterWithBaseURL(token string, model string, baseURL string, system string, templateStr string) *OpenRouter {
 	var templ *template.Template
 	if templateStr != "" {
